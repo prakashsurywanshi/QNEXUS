@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Observers\SocietyObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +14,7 @@ use Illuminate\Support\Str;
 /**
  * @property string $property_type
  */
+#[ObservedBy([SocietyObserver::class])]
 class Society extends Model
 {
     use HasFactory;
