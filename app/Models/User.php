@@ -61,6 +61,26 @@ class User extends Authenticatable implements PasskeyUser
         return $this->belongsTo(Society::class);
     }
 
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function roleIn(int $societyId): ?Role
+    {
+        $pivot = SocietyUser::where('user_id', $this->id)
+            ->where('society_id', $societyId)
+            ->first();
+
+        if ($pivot && $pivot->role_id) {
+            return Role::where('id', $pivot->role_id)
+                ->withoutGlobalScope(\App\Scopes\SocietyScope::class)
+                ->first();
+        }
+
+        return null;
+    }
+
     public function societies(): BelongsToMany
     {
         return $this->belongsToMany(Society::class, 'society_user', 'user_id', 'society_id')
