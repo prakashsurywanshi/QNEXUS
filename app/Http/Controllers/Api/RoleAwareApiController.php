@@ -32,13 +32,11 @@ abstract class RoleAwareApiController extends BaseApiController
 
     public function __construct()
     {
-        // The built-in scope middleware resolves tenant context eagerly so that
-        // every query in the request is automatically society-scoped.
-        $this->middleware(function (Request $request, $next) {
-            $this->resolveContext();
-
-            return $next($request);
-        });
+        // Context is resolved lazily by the protected helpers (resolveContext)
+        // rather than via a constructor middleware, because the base
+        // App\Http\Controllers\Controller is an empty abstract class that does
+        // not extend Illuminate\Routing\Controller (so $this->middleware()
+        // would be undefined here).
     }
 
     /**

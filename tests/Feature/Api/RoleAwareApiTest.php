@@ -65,7 +65,7 @@ it('lets residents book an amenity', function () {
     $amenity = \App\Models\Amenities::create([
         'society_id' => $this->society->id,
         'amenities_name' => 'Club House',
-        'status' => 'active',
+        'status' => 'available',
     ]);
 
     $this->withToken(apiTokenFor($user))

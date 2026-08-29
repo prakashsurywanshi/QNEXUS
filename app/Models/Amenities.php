@@ -12,6 +12,18 @@ class Amenities extends Model
 
     protected $table = 'amenities';
 
+    protected $fillable = [
+        'society_id',
+        'amenities_name',
+        'status',
+        'booking_status',
+        'start_time',
+        'end_time',
+        'slot_time',
+        'multiple_booking_status',
+        'number_of_person',
+    ];
+
     public function bookings()
     {
         return $this->hasMany(BookAmenity::class, 'amenity_id');

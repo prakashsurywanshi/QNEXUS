@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('type_id')->nullable()->index('ticket_type_id_foreign');
             $table->foreign(['type_id'])->references(['id'])->on('ticket_type_settings')->onUpdate('CASCADE')->onDelete('SET NULL');
             $table->enum('status', ['open', 'pending', 'resolved', 'closed'])->default('open');
-            $table->unsignedBigInteger('agent_id')->index('tickets_agent_id_foreign');
+            $table->unsignedBigInteger('agent_id')->nullable()->index('tickets_agent_id_foreign');
             $table->foreign(['agent_id'])->references(['id'])->on('users')->onUpdate('CASCADE')->onDelete('CASCADE');
             $table->text('subject')->nullable();
             $table->text('reply')->nullable();
