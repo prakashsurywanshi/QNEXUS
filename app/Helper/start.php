@@ -282,3 +282,36 @@ if (!function_exists('society_is_type')) {
         return in_array(effective_property_type(), (array) $types, true);
     }
 }
+
+if (!function_exists('asset_url_local_s3')) {
+
+    /**
+     * Build a URL for a stored asset. Supports S3-compatible disks when the
+     * configured default disk matches, otherwise falls back to local uploads.
+     */
+    function asset_url_local_s3($path)
+    {
+        $StorageSetting = class_exists(\App\Models\StorageSetting::class)
+            ? new \App\Models\StorageSetting()
+            : null;
+
+        if (in_array(config('filesystems.default'), $StorageSetting ? $StorageSetting::S3_COMPATIBLE_STORAGE : [])) {
+            if (\Illuminate\Support\Facades\Cache::has(config('filesystems.default') . '-' . $path)) {
+                return \Illuminate\Support\Facades\Cache::get(config('filesystems.default') . '-' . $path);
+            }
+
+            $temporaryUrl = Storage::disk(config('filesystems.default'))->temporaryUrl($path, now()->addMinutes($StorageSetting::HASH_TEMP_FILE_TIME));
+            \Illuminate\Support\Facades\Cache::put(config('filesystems.default') . '-' . $path, $temporaryUrl, $StorageSetting::HASH_TEMP_FILE_TIME * 60);
+
+            return $temporaryUrl;
+        }
+
+        $storageUrl = \App\Helper\Files::UPLOAD_FOLDER . '/' . $path;
+
+        if (!Str::startsWith($storageUrl, 'http')) {
+            return url($storageUrl);
+        }
+
+        return $storageUrl;
+    }
+}
