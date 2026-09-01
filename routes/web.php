@@ -48,13 +48,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('services', [ServiceManagementController::class, 'index'])->name('service-management.index');
     Route::get('service-types', [ServiceTypeController::class, 'index'])->name('service-types.index');
     Route::get('service-log', [ServiceClockController::class, 'index'])->name('service-log.index');
-    Route::get('visitors', [VisitorController::class, 'index'])->name('visitors.index');
+    Route::controller(VisitorController::class)
+        ->prefix('visitors')
+        ->name('visitors.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{visitor}/edit', 'edit')->name('edit');
+            Route::put('{visitor}', 'update')->name('update');
+            Route::delete('{visitor}', 'destroy')->name('destroy');
+        });
     Route::get('gatepasses', [GatepassController::class, 'index'])->name('gatepasses.index');
     Route::get('patrol', [PatrolController::class, 'index'])->name('patrol.index');
     Route::get('maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
     Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('budgets', [BudgetController::class, 'index'])->name('budgets.index');
-    Route::get('notices', [NoticeController::class, 'index'])->name('notices.index');
+    Route::controller(NoticeController::class)
+        ->prefix('notices')
+        ->name('notices.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{notice}/edit', 'edit')->name('edit');
+            Route::put('{notice}', 'update')->name('update');
+            Route::delete('{notice}', 'destroy')->name('destroy');
+        });
     Route::get('events', [EventController::class, 'index'])->name('events.index');
     Route::get('polls', [PollController::class, 'index'])->name('polls.index');
     Route::get('societies', [SocietyAdminController::class, 'index'])->name('societies.index');

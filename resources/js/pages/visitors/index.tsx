@@ -1,5 +1,9 @@
+import { Link, useForm } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { create, destroy, edit } from '@/routes/visitors';
 
 interface Visitor {
     id: number;
@@ -13,16 +17,31 @@ interface Visitor {
 }
 
 export default function VisitorsIndex({ visitors }: { visitors: Visitor[] }) {
+    const { delete: deleteForm } = useForm();
     const color: Record<string, string> = {
         pending: 'text-amber-600',
         allowed: 'text-green-600',
         not_allowed: 'text-red-600',
     };
+
+    const handleDelete = (id: number) => {
+        if (confirm('Delete this visitor?')) {
+            deleteForm(destroy(id).url);
+        }
+    };
+
     return (
         <>
             <Head title="Visitors" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <h1 className="text-xl font-semibold">Visitors</h1>
+                <div className="flex items-center justify-between">
+                    <h1 className="text-xl font-semibold">Visitors</h1>
+                    <Button asChild size="sm">
+                        <Link href={create().url}>
+                            <Plus /> Add Visitor
+                        </Link>
+                    </Button>
+                </div>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {visitors.length === 0 && (
                         <p className="text-muted-foreground">No visitors in this society yet.</p>
@@ -38,6 +57,16 @@ export default function VisitorsIndex({ visitors }: { visitors: Visitor[] }) {
                             <p className="text-muted-foreground text-sm">
                                 {visitor.date_of_visit || '-'} {visitor.in_time || ''}–{visitor.out_time || ''}
                             </p>
+                            <div className="mt-3 flex items-center gap-2">
+                                <Button asChild variant="outline" size="sm">
+                                    <Link href={edit(visitor.id).url}>
+                                        <Pencil /> Edit
+                                    </Link>
+                                </Button>
+                                <Button variant="destructive" size="sm" onClick={() => handleDelete(visitor.id)}>
+                                    <Trash2 /> Delete
+                                </Button>
+                            </div>
                         </div>
                     ))}
                 </div>
