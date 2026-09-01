@@ -31,6 +31,7 @@ import { edit as editSettings } from '@/routes/superadmin/settings';
 import { index as pagesIndex } from '@/routes/superadmin/cms/pages';
 import { index as postsIndex } from '@/routes/superadmin/blog/posts';
 import { index as sectionsIndex } from '@/routes/superadmin/cms/sections';
+import { index as packagesIndex } from '@/routes/superadmin/packages';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -71,7 +72,7 @@ const groupedNavItems = [
         title: 'Packages & Billing',
         icon: PackageOpen,
         items: [
-            { title: 'Packages', href: '#', icon: PackageOpen },
+            { title: 'Packages', href: packagesIndex().url, icon: PackageOpen },
             { title: 'Subscriptions', href: '#', icon: CreditCard },
             { title: 'Invoices', href: '#', icon: FileText },
             { title: 'Gateways', href: '#', icon: CreditCard },

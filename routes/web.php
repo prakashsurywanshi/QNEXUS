@@ -9,6 +9,7 @@ use App\Http\Controllers\CommercialTenantController;
 use App\Http\Controllers\CommercialUnitController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\FloorController;
+use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\GatepassController;
 use App\Http\Controllers\LedgerController;
 use App\Http\Controllers\LeaseAgreementController;
@@ -29,7 +30,12 @@ use App\Http\Controllers\VendorController;
 use App\Http\Controllers\VisitorController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('home');
+Route::middleware(['disable.landing'])->group(function () {
+    Route::get('/', [FrontendController::class, 'home'])->name('home');
+    Route::get('page/{slug}', [FrontendController::class, 'page'])->name('site.page');
+    Route::get('blog', [FrontendController::class, 'blog'])->name('site.blog');
+    Route::get('blog/{slug}', [FrontendController::class, 'post'])->name('site.post');
+});
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');

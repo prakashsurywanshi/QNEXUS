@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Actions\ProvisionSociety;
 use App\Models\ModuleSetting;
 use App\Models\Society;
 
@@ -17,6 +18,7 @@ class SocietyObserver
     public function created(Society $society): void
     {
         $this->addModuleSettings($society);
+        (new ProvisionSociety)($society);
     }
 
     /**
@@ -59,7 +61,7 @@ class SocietyObserver
 
         foreach ($types as $type) {
             foreach ($modules as $module) {
-                if (!moduleAppliesToType($module, $society->property_type)) {
+                if (! moduleAppliesToType($module, $society->property_type)) {
                     continue;
                 }
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\SuperAdmin\CmsPageController;
 use App\Http\Controllers\SuperAdmin\CmsSectionController;
 use App\Http\Controllers\SuperAdmin\DashboardController;
 use App\Http\Controllers\SuperAdmin\GlobalSettingController;
+use App\Http\Controllers\SuperAdmin\PackageController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', 'superadmin'])
@@ -26,5 +27,9 @@ Route::middleware(['auth', 'verified', 'superadmin'])
 
         Route::resource('blog/posts', BlogPostController::class)
             ->names('blog.posts')
+            ->except('show');
+
+        Route::resource('packages', PackageController::class)
+            ->names('packages')
             ->except('show');
     });
