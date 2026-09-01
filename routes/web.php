@@ -33,7 +33,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('towers', TowerController::class)->only(['index', 'show']);
     Route::get('towers/{tower}/floors', [FloorController::class, 'index'])->name('floors.index');
     Route::get('apartments', [ApartmentController::class, 'index'])->name('apartments.index');
-    Route::get('amenities', [AmenityController::class, 'index'])->name('amenities.index');
+    Route::controller(AmenityController::class)
+        ->prefix('amenities')
+        ->name('amenities.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{amenity}/edit', 'edit')->name('edit');
+            Route::put('{amenity}', 'update')->name('update');
+            Route::delete('{amenity}', 'destroy')->name('destroy');
+        });
     Route::get('assets', [AssetController::class, 'index'])->name('assets.index');
     Route::get('services', [ServiceManagementController::class, 'index'])->name('service-management.index');
     Route::get('service-types', [ServiceTypeController::class, 'index'])->name('service-types.index');
