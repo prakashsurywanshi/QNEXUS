@@ -1,5 +1,9 @@
+import { Link, useForm } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { create, destroy, edit } from '@/routes/ledger';
 
 interface Entry {
     id: number;
@@ -11,11 +15,26 @@ interface Entry {
 }
 
 export default function LedgerIndex({ entries }: { entries: Entry[] }) {
+    const { delete: deleteForm } = useForm();
+
+    const handleDelete = (id: number) => {
+        if (confirm('Delete this ledger entry?')) {
+            deleteForm(destroy(id).url);
+        }
+    };
+
     return (
         <>
             <Head title="Ledger" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <h1 className="text-xl font-semibold">General Ledger</h1>
+                <div className="flex items-center justify-between">
+                    <h1 className="text-xl font-semibold">General Ledger</h1>
+                    <Button asChild size="sm">
+                        <Link href={create().url}>
+                            <Plus /> Add Entry
+                        </Link>
+                    </Button>
+                </div>
                 <div className="overflow-x-auto rounded-xl border">
                     <table className="w-full text-sm">
                         <thead className="text-muted-foreground border-b">
@@ -25,11 +44,12 @@ export default function LedgerIndex({ entries }: { entries: Entry[] }) {
                                 <th className="px-3 py-2 text-right font-medium">Debit</th>
                                 <th className="px-3 py-2 text-right font-medium">Credit</th>
                                 <th className="px-3 py-2 text-right font-medium">Balance</th>
+                                <th className="px-3 py-2 text-right font-medium">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {entries.length === 0 && (
-                                <tr><td colSpan={5} className="text-muted-foreground px-3 py-4 text-center">No ledger entries yet.</td></tr>
+                                <tr><td colSpan={6} className="text-muted-foreground px-3 py-4 text-center">No ledger entries yet.</td></tr>
                             )}
                             {entries.map((e) => (
                                 <tr key={e.id} className="hover:bg-muted/50 border-b">
@@ -38,6 +58,18 @@ export default function LedgerIndex({ entries }: { entries: Entry[] }) {
                                     <td className="px-3 py-2 text-right">{e.debit}</td>
                                     <td className="px-3 py-2 text-right">{e.credit}</td>
                                     <td className="px-3 py-2 text-right">{e.balance}</td>
+                                    <td className="px-3 py-2 text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <Button asChild variant="outline" size="sm">
+                                                <Link href={edit(e.id).url}>
+                                                    <Pencil /> Edit
+                                                </Link>
+                                            </Button>
+                                            <Button variant="destructive" size="sm" onClick={() => handleDelete(e.id)}>
+                                                <Trash2 /> Delete
+                                            </Button>
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>

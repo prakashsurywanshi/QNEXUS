@@ -189,9 +189,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('{member}', 'update')->name('update');
             Route::delete('{member}', 'destroy')->name('destroy');
         });
-    Route::get('ledger', [LedgerController::class, 'index'])->name('ledger.index');
-    Route::get('vendors', [VendorController::class, 'index'])->name('vendors.index');
-    Route::get('invoices', [RentInvoiceController::class, 'index'])->name('invoices.index');
+    Route::controller(LedgerController::class)
+        ->prefix('ledger')
+        ->name('ledger.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{entry}/edit', 'edit')->name('edit');
+            Route::put('{entry}', 'update')->name('update');
+            Route::delete('{entry}', 'destroy')->name('destroy');
+        });
+    Route::controller(VendorController::class)
+        ->prefix('vendors')
+        ->name('vendors.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{vendor}/edit', 'edit')->name('edit');
+            Route::put('{vendor}', 'update')->name('update');
+            Route::delete('{vendor}', 'destroy')->name('destroy');
+        });
+    Route::controller(RentInvoiceController::class)
+        ->prefix('invoices')
+        ->name('invoices.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{invoice}/edit', 'edit')->name('edit');
+            Route::put('{invoice}', 'update')->name('update');
+            Route::delete('{invoice}', 'destroy')->name('destroy');
+        });
 
     Route::post('society/{society}/switch', SocietySwitchController::class)
         ->name('society.switch');
