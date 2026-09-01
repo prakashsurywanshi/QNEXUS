@@ -283,6 +283,42 @@ if (!function_exists('society_is_type')) {
     }
 }
 
+if (!function_exists('global_setting')) {
+
+    /**
+     * The platform-wide GlobalSetting singleton (branding, SEO, landing site
+     * toggle, social links, locale/timezone). Memorised per request.
+     *
+     * @return \App\Models\GlobalSetting|null
+     */
+    function global_setting()
+    {
+        static $settings = null;
+        static $resolved = false;
+
+        if (!$resolved) {
+            $settings = \App\Models\GlobalSetting::first();
+            $resolved = true;
+        }
+
+        return $settings;
+    }
+}
+
+if (!function_exists('is_superadmin')) {
+
+    /**
+     * Whether the current user is a platform-level superadmin, i.e. a user
+     * that is not bound to any single society (society_id is null).
+     */
+    function is_superadmin(): bool
+    {
+        $user = user();
+
+        return $user !== null && is_null($user->society_id);
+    }
+}
+
 if (!function_exists('asset_url_local_s3')) {
 
     /**

@@ -41,6 +41,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'isSuperadmin' => fn () => $request->user() !== null && is_null($request->user()->society_id),
+            'globalSettings' => fn () => \global_setting(),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
