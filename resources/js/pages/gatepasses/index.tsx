@@ -1,5 +1,9 @@
+import { Link, useForm } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { create, destroy, edit } from '@/routes/gatepasses';
 
 interface Gatepass {
     id: number;
@@ -11,17 +15,32 @@ interface Gatepass {
 }
 
 export default function GatepassesIndex({ gatepasses }: { gatepasses: Gatepass[] }) {
+    const { delete: deleteForm } = useForm();
     const color: Record<string, string> = {
         pending: 'text-amber-600',
         approved: 'text-green-600',
         rejected: 'text-red-600',
         completed: 'text-blue-600',
     };
+
+    const handleDelete = (id: number) => {
+        if (confirm('Delete this gatepass?')) {
+            deleteForm(destroy(id).url);
+        }
+    };
+
     return (
         <>
             <Head title="Gatepasses" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <h1 className="text-xl font-semibold">Gatepasses</h1>
+                <div className="flex items-center justify-between">
+                    <h1 className="text-xl font-semibold">Gatepasses</h1>
+                    <Button asChild size="sm">
+                        <Link href={create().url}>
+                            <Plus /> Add Gatepass
+                        </Link>
+                    </Button>
+                </div>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {gatepasses.length === 0 && (
                         <p className="text-muted-foreground">No gatepasses yet.</p>
@@ -36,6 +55,16 @@ export default function GatepassesIndex({ gatepasses }: { gatepasses: Gatepass[]
                                 Qty {gp.quantity} · {gp.gatepass_type}
                             </p>
                             {gp.vehicle_number && <p className="text-muted-foreground text-sm">{gp.vehicle_number}</p>}
+                            <div className="mt-3 flex items-center gap-2">
+                                <Button asChild variant="outline" size="sm">
+                                    <Link href={edit(gp.id).url}>
+                                        <Pencil /> Edit
+                                    </Link>
+                                </Button>
+                                <Button variant="destructive" size="sm" onClick={() => handleDelete(gp.id)}>
+                                    <Trash2 /> Delete
+                                </Button>
+                            </div>
                         </div>
                     ))}
                 </div>

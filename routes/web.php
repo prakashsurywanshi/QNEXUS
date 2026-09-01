@@ -79,9 +79,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('{visitor}', 'update')->name('update');
             Route::delete('{visitor}', 'destroy')->name('destroy');
         });
-    Route::get('gatepasses', [GatepassController::class, 'index'])->name('gatepasses.index');
-    Route::get('patrol', [PatrolController::class, 'index'])->name('patrol.index');
-    Route::get('maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
+    Route::controller(GatepassController::class)
+        ->prefix('gatepasses')
+        ->name('gatepasses.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{gatepass}/edit', 'edit')->name('edit');
+            Route::put('{gatepass}', 'update')->name('update');
+            Route::delete('{gatepass}', 'destroy')->name('destroy');
+        });
+    Route::controller(PatrolController::class)
+        ->prefix('patrol')
+        ->name('patrol.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{checkpoint}/edit', 'edit')->name('edit');
+            Route::put('{checkpoint}', 'update')->name('update');
+            Route::delete('{checkpoint}', 'destroy')->name('destroy');
+        });
+    Route::controller(MaintenanceController::class)
+        ->prefix('maintenance')
+        ->name('maintenance.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{maintenance}/edit', 'edit')->name('edit');
+            Route::put('{maintenance}', 'update')->name('update');
+            Route::delete('{maintenance}', 'destroy')->name('destroy');
+        });
     Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('budgets', [BudgetController::class, 'index'])->name('budgets.index');
     Route::controller(NoticeController::class)
