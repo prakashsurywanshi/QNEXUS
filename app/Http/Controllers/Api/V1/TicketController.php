@@ -44,7 +44,7 @@ class TicketController extends RoleAwareApiController
 
         $ticket = new Ticket();
         $ticket->society_id = $society->id;
-        $ticket->ticket_number = 'TCK-' . Str::upper(Str::random(8));
+        $ticket->ticket_number = (Ticket::where('society_id', $society->id)->max('ticket_number') ?? 0) + 1;
         $ticket->user_id = $this->authUser()->id;
         $ticket->type_id = $validated['type_id'] ?? null;
         $ticket->subject = $validated['subject'];

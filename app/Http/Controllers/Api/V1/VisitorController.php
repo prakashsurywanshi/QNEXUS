@@ -51,7 +51,7 @@ class VisitorController extends RoleAwareApiController
         $visitor->address = $validated['address'] ?? null;
         $visitor->user_id = $this->authUser()->id;
         $visitor->added_by = $this->authUser()->id;
-        $visitor->status = 'active';
+        $visitor->status = 'allowed';
         $visitor->in_time = now()->toTimeString();
         $visitor->save();
 

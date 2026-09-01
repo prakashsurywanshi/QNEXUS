@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('visitor_photo')->nullable();
             $table->string('phone_number')->nullable();
             $table->string('address')->nullable();
-            $table->foreignId('apartment_id')->constrained('apartment_managements')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('apartment_id')->nullable()->constrained('apartment_managements')->onDelete('cascade')->onUpdate('cascade');
             $table->date('date_of_visit')->nullable();
             $table->date('date_of_exit')->nullable();
             $table->time('in_time')->nullable();

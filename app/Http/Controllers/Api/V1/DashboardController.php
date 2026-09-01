@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Api\RoleAwareApiController;
 use App\Models\AmenityBooking;
 use App\Models\Apartment;
+use App\Models\BookAmenity;
 use App\Models\DailyHelpBooking;
 use App\Models\Notice;
 use App\Models\Ticket;
@@ -53,8 +54,8 @@ class DashboardController extends RoleAwareApiController
             case 'Owner':
             case 'Tenant':
                 $data['counts'] = [
-                    'my_tickets' => Ticket::where($baseSociety)->where('created_by', $userId)->orWhere('user_id', $userId)->count(),
-                    'my_amenity_bookings' => AmenityBooking::where($baseSociety)->where('booked_by', $userId)->count(),
+                    'my_tickets' => Ticket::where($baseSociety)->where('user_id', $userId)->count(),
+                    'my_amenity_bookings' => BookAmenity::where($baseSociety)->where('booked_by', $userId)->count(),
                     'notices' => Notice::where($baseSociety)->count(),
                 ];
                 break;

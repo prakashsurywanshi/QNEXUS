@@ -1,0 +1,50 @@
+import { Head } from '@inertiajs/react';
+import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+
+interface Visitor {
+    id: number;
+    visitor_name: string;
+    phone_number: string | null;
+    purpose_of_visit: string | null;
+    date_of_visit: string | null;
+    in_time: string | null;
+    out_time: string | null;
+    status: 'pending' | 'allowed' | 'not_allowed';
+}
+
+export default function VisitorsIndex({ visitors }: { visitors: Visitor[] }) {
+    const color: Record<string, string> = {
+        pending: 'text-amber-600',
+        allowed: 'text-green-600',
+        not_allowed: 'text-red-600',
+    };
+    return (
+        <>
+            <Head title="Visitors" />
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+                <h1 className="text-xl font-semibold">Visitors</h1>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {visitors.length === 0 && (
+                        <p className="text-muted-foreground">No visitors in this society yet.</p>
+                    )}
+                    {visitors.map((visitor) => (
+                        <div key={visitor.id} className="border-sidebar-border/70 dark:border-sidebar-border rounded-xl border p-4">
+                            <div className="flex items-center justify-between">
+                                <span className="font-medium">{visitor.visitor_name}</span>
+                                <span className={`text-sm ${color[visitor.status] ?? 'text-muted-foreground'}`}>{visitor.status}</span>
+                            </div>
+                            {visitor.phone_number && <p className="text-muted-foreground mt-1 text-sm">{visitor.phone_number}</p>}
+                            {visitor.purpose_of_visit && <p className="text-muted-foreground text-sm">{visitor.purpose_of_visit}</p>}
+                            <p className="text-muted-foreground text-sm">
+                                {visitor.date_of_visit || '-'} {visitor.in_time || ''}–{visitor.out_time || ''}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[20vh] overflow-hidden rounded-xl border">
+                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+                </div>
+            </div>
+        </>
+    );
+}

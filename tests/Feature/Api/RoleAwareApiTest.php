@@ -108,7 +108,7 @@ it('lets guards check in a visitor', function () {
     $this->withToken(apiTokenFor($user))
         ->postJson('/api/v1/visitors/checkin', ['visitor_name' => 'John Doe'])
         ->assertStatus(201)
-        ->assertJsonPath('data.status', 'active');
+        ->assertJsonPath('data.status', 'allowed');
 });
 
 it('prevents a tenant from checking in visitors (403)', function () {

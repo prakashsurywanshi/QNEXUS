@@ -17,7 +17,7 @@ class AmenityBookingController extends RoleAwareApiController
         $this->authorizeRole(['Owner', 'Tenant', 'Admin', 'Manager']);
 
         $amenities = Amenities::where('society_id', $society->id)
-            ->where('status', 'active')
+            ->where('status', 'available')
             ->get();
 
         return $this->success($amenities, 'Amenities fetched');
@@ -39,7 +39,7 @@ class AmenityBookingController extends RoleAwareApiController
 
         $amenity = Amenities::where('society_id', $society->id)
             ->where('id', $validated['amenity_id'])
-            ->where('status', 'active')
+            ->where('status', 'available')
             ->first();
 
         if (!$amenity) {
@@ -53,7 +53,7 @@ class AmenityBookingController extends RoleAwareApiController
         $booking->booking_date = $validated['booking_date'];
         $booking->booking_time = $validated['booking_time'];
         $booking->persons = $validated['persons'];
-        $booking->booking_type = $validated['booking_type'] ?? null;
+        $booking->booking_type = $validated['booking_type'] ?? 'single';
         $booking->unique_id = (string) \Illuminate\Support\Str::uuid();
         $booking->save();
 
