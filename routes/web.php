@@ -167,8 +167,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('{poll}', 'update')->name('update');
             Route::delete('{poll}', 'destroy')->name('destroy');
         });
-    Route::get('societies', [SocietyAdminController::class, 'index'])->name('societies.index');
-    Route::get('members', [MemberController::class, 'index'])->name('members.index');
+    Route::controller(SocietyAdminController::class)
+        ->prefix('societies')
+        ->name('societies.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{society}/edit', 'edit')->name('edit');
+            Route::put('{society}', 'update')->name('update');
+            Route::delete('{society}', 'destroy')->name('destroy');
+        });
+    Route::controller(MemberController::class)
+        ->prefix('members')
+        ->name('members.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{member}/edit', 'edit')->name('edit');
+            Route::put('{member}', 'update')->name('update');
+            Route::delete('{member}', 'destroy')->name('destroy');
+        });
     Route::get('ledger', [LedgerController::class, 'index'])->name('ledger.index');
     Route::get('vendors', [VendorController::class, 'index'])->name('vendors.index');
     Route::get('invoices', [RentInvoiceController::class, 'index'])->name('invoices.index');
