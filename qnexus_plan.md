@@ -32,13 +32,17 @@ Laravel 13.29 (PHP 8.4.24) + React 19 + Inertia v3 + Tailwind v4 + shadcn/ui + F
 | 12 | Admin/Superadmin (Societies, Members) | Done |
 | 13 | Reports & Payments (Ledger, Vendors, Invoices) | Done |
 | 14 | Full CRUD for all 17 web domains | Done |
+| 15 | Commercial web CRUD (Units, Tenants, Lease Agreements, CAM Charges) | Done |
 
-## CRUD Coverage (Phase 14)
+## CRUD Coverage (Phases 14–15)
 Every web resource now has `index / create / store / {id} / edit / update / destroy` via
 resource-style `Route::controller(...)->prefix('x')->name('x.')->group([...])` routes in `routes/web.php`:
 Amenities, Visitors, Notices, Services, Assets, Gatepasses, Patrol, Maintenance, Payments, Budgets,
-Events, Polls, Societies, Members, Ledger, Vendors, Invoices — with create/edit Inertia pages and
-Add/Edit/Delete actions on each index page.
+Events, Polls, Societies, Members, Ledger, Vendors, Invoices — plus the commercial domains
+Commercial Units, Commercial Tenants, Lease Agreements, CAM Charges — with create/edit Inertia pages and
+Add/Edit/Delete actions on each index page. Commercial DB (commercial_units/tenants, lease_agreements,
+cam_charges, rent_invoices) was already ported in phases 3–4; rent invoices are already covered by the
+`invoices` web domain. All four commercial models build on the HasSociety tenant scope.
 
 Notable corrections made while porting:
 - `payments` table lacked `society_id` (HasSociety-scoped) → `add_society_id_to_payments_table` migration
@@ -61,8 +65,8 @@ Bugs found & fixed by the new Pest CRUD suite (`tests/Feature/Crud/*`):
   (category_id, location, condition, tower_id, floor_id, apartment_id, file_path, purchase_date, maintenance_schedule).
 
 ## Current Test Status
-`php artisan test --compact` → **167/167 passed** (579 assertions).
-Coverage: 64 pre-existing (phases 5–6) + 103 new CRUD tests (17 controllers, `tests/Feature/Crud/`).
+`php artisan test --compact` → **191/191 passed** (667 assertions).
+Coverage: 64 pre-existing (phases 5–6) + 127 CRUD tests (21 controllers, `tests/Feature/Crud/`).
 All CRUD controllers lint-clean; `npx tsc --noEmit` → 0 errors; `npx vp build` → OK; clean `git status`.
 
 ## Known Env Quirks

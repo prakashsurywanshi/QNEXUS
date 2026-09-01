@@ -4,10 +4,14 @@ use App\Http\Controllers\AmenityController;
 use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\CamChargeController;
+use App\Http\Controllers\CommercialTenantController;
+use App\Http\Controllers\CommercialUnitController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\FloorController;
 use App\Http\Controllers\GatepassController;
 use App\Http\Controllers\LedgerController;
+use App\Http\Controllers\LeaseAgreementController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\NoticeController;
@@ -221,6 +225,50 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('{invoice}/edit', 'edit')->name('edit');
             Route::put('{invoice}', 'update')->name('update');
             Route::delete('{invoice}', 'destroy')->name('destroy');
+        });
+    Route::controller(CommercialUnitController::class)
+        ->prefix('commercial-units')
+        ->name('commercial-units.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{commercialUnit}/edit', 'edit')->name('edit');
+            Route::put('{commercialUnit}', 'update')->name('update');
+            Route::delete('{commercialUnit}', 'destroy')->name('destroy');
+        });
+    Route::controller(CommercialTenantController::class)
+        ->prefix('commercial-tenants')
+        ->name('commercial-tenants.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{commercialTenant}/edit', 'edit')->name('edit');
+            Route::put('{commercialTenant}', 'update')->name('update');
+            Route::delete('{commercialTenant}', 'destroy')->name('destroy');
+        });
+    Route::controller(LeaseAgreementController::class)
+        ->prefix('lease-agreements')
+        ->name('lease-agreements.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{leaseAgreement}/edit', 'edit')->name('edit');
+            Route::put('{leaseAgreement}', 'update')->name('update');
+            Route::delete('{leaseAgreement}', 'destroy')->name('destroy');
+        });
+    Route::controller(CamChargeController::class)
+        ->prefix('cam-charges')
+        ->name('cam-charges.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{camCharge}/edit', 'edit')->name('edit');
+            Route::put('{camCharge}', 'update')->name('update');
+            Route::delete('{camCharge}', 'destroy')->name('destroy');
         });
 
     Route::post('society/{society}/switch', SocietySwitchController::class)

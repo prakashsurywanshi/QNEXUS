@@ -8,6 +8,7 @@ import {
     Megaphone,
     PackageOpen,
     ShieldCheck,
+    Store,
     Users,
     Wrench,
 } from 'lucide-react';
@@ -30,9 +31,13 @@ import { index as apartmentsIndex } from '@/routes/apartments';
 import { index as amenitiesIndex } from '@/routes/amenities';
 import { index as assetsIndex } from '@/routes/assets';
 import { index as budgetsIndex } from '@/routes/budgets';
+import { index as camChargesIndex } from '@/routes/cam-charges';
+import { index as commercialTenantsIndex } from '@/routes/commercial-tenants';
+import { index as commercialUnitsIndex } from '@/routes/commercial-units';
 import { index as eventsIndex } from '@/routes/events';
 import { index as gatepassesIndex } from '@/routes/gatepasses';
 import { index as invoicesIndex } from '@/routes/invoices';
+import { index as leaseAgreementsIndex } from '@/routes/lease-agreements';
 import { index as ledgerIndex } from '@/routes/ledger';
 import { index as maintenanceIndex } from '@/routes/maintenance';
 import { index as membersIndex } from '@/routes/members';
@@ -102,6 +107,16 @@ const groupedNavItems = [
             { title: 'Ledger', href: ledgerIndex().url, icon: BadgeDollarSign },
             { title: 'Vendors', href: vendorsIndex().url, icon: BadgeDollarSign },
             { title: 'Invoices', href: invoicesIndex().url, icon: BadgeDollarSign },
+        ],
+    },
+    {
+        title: 'Commercial',
+        icon: Store,
+        items: [
+            { title: 'Commercial Units', href: commercialUnitsIndex().url, icon: Store },
+            { title: 'Commercial Tenants', href: commercialTenantsIndex().url, icon: Store },
+            { title: 'Lease Agreements', href: leaseAgreementsIndex().url, icon: Store },
+            { title: 'CAM Charges', href: camChargesIndex().url, icon: Store },
         ],
     },
     {
