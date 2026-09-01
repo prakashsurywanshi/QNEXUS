@@ -112,8 +112,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('{maintenance}', 'update')->name('update');
             Route::delete('{maintenance}', 'destroy')->name('destroy');
         });
-    Route::get('payments', [PaymentController::class, 'index'])->name('payments.index');
-    Route::get('budgets', [BudgetController::class, 'index'])->name('budgets.index');
+    Route::controller(PaymentController::class)
+        ->prefix('payments')
+        ->name('payments.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{payment}/edit', 'edit')->name('edit');
+            Route::put('{payment}', 'update')->name('update');
+            Route::delete('{payment}', 'destroy')->name('destroy');
+        });
+    Route::controller(BudgetController::class)
+        ->prefix('budgets')
+        ->name('budgets.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{budget}/edit', 'edit')->name('edit');
+            Route::put('{budget}', 'update')->name('update');
+            Route::delete('{budget}', 'destroy')->name('destroy');
+        });
     Route::controller(NoticeController::class)
         ->prefix('notices')
         ->name('notices.')
