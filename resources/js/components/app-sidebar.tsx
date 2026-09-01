@@ -1,8 +1,20 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import {
+    BadgeDollarSign,
+    BookOpen,
+    Building2,
+    FolderGit2,
+    LayoutGrid,
+    Megaphone,
+    PackageOpen,
+    ShieldCheck,
+    Users,
+    Wrench,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
+import { NavMainGrouped } from '@/components/nav-main-grouped';
 import { NavUser } from '@/components/nav-user';
 import {
     Sidebar,
@@ -14,6 +26,27 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as apartmentsIndex } from '@/routes/apartments';
+import { index as amenitiesIndex } from '@/routes/amenities';
+import { index as assetsIndex } from '@/routes/assets';
+import { index as budgetsIndex } from '@/routes/budgets';
+import { index as eventsIndex } from '@/routes/events';
+import { index as gatepassesIndex } from '@/routes/gatepasses';
+import { index as invoicesIndex } from '@/routes/invoices';
+import { index as ledgerIndex } from '@/routes/ledger';
+import { index as maintenanceIndex } from '@/routes/maintenance';
+import { index as membersIndex } from '@/routes/members';
+import { index as noticesIndex } from '@/routes/notices';
+import { index as patrolIndex } from '@/routes/patrol';
+import { index as paymentsIndex } from '@/routes/payments';
+import { index as pollsIndex } from '@/routes/polls';
+import { index as serviceLogIndex } from '@/routes/service-log';
+import { index as servicesIndex } from '@/routes/service-management';
+import { index as serviceTypesIndex } from '@/routes/service-types';
+import { index as societiesIndex } from '@/routes/societies';
+import { index as towersIndex } from '@/routes/towers';
+import { index as vendorsIndex } from '@/routes/vendors';
+import { index as visitorsIndex } from '@/routes/visitors';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -21,6 +54,70 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+];
+
+const groupedNavItems = [
+    {
+        title: 'Estate',
+        icon: Building2,
+        items: [
+            { title: 'Towers', href: towersIndex().url, icon: Building2 },
+            { title: 'Apartments', href: apartmentsIndex().url, icon: Users },
+        ],
+    },
+    {
+        title: 'Amenities & Assets',
+        icon: PackageOpen,
+        items: [
+            { title: 'Amenities', href: amenitiesIndex().url, icon: PackageOpen },
+            { title: 'Assets', href: assetsIndex().url, icon: ShieldCheck },
+        ],
+    },
+    {
+        title: 'Services',
+        icon: Wrench,
+        items: [
+            { title: 'Services', href: servicesIndex().url, icon: Wrench },
+            { title: 'Service Types', href: serviceTypesIndex().url, icon: Wrench },
+            { title: 'Service Log', href: serviceLogIndex().url, icon: Wrench },
+        ],
+    },
+    {
+        title: 'Security',
+        icon: ShieldCheck,
+        items: [
+            { title: 'Visitors', href: visitorsIndex().url, icon: Users },
+            { title: 'Gatepasses', href: gatepassesIndex().url, icon: ShieldCheck },
+            { title: 'Patrol', href: patrolIndex().url, icon: ShieldCheck },
+        ],
+    },
+    {
+        title: 'Finance',
+        icon: BadgeDollarSign,
+        items: [
+            { title: 'Maintenance', href: maintenanceIndex().url, icon: BadgeDollarSign },
+            { title: 'Payments', href: paymentsIndex().url, icon: BadgeDollarSign },
+            { title: 'Budgets', href: budgetsIndex().url, icon: BadgeDollarSign },
+            { title: 'Ledger', href: ledgerIndex().url, icon: BadgeDollarSign },
+            { title: 'Vendors', href: vendorsIndex().url, icon: BadgeDollarSign },
+            { title: 'Invoices', href: invoicesIndex().url, icon: BadgeDollarSign },
+        ],
+    },
+    {
+        title: 'Community',
+        icon: Megaphone,
+        items: [
+            { title: 'Notices', href: noticesIndex().url, icon: Megaphone },
+            { title: 'Events', href: eventsIndex().url, icon: Megaphone },
+            { title: 'Polls', href: pollsIndex().url, icon: Megaphone },
+            { title: 'Members', href: membersIndex().url, icon: Users },
+        ],
+    },
+    {
+        title: 'Admin',
+        icon: ShieldCheck,
+        items: [{ title: 'Societies', href: societiesIndex().url, icon: Building2 }],
     },
 ];
 
@@ -54,6 +151,7 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} />
+                <NavMainGrouped groups={groupedNavItems} />
             </SidebarContent>
 
             <SidebarFooter>
