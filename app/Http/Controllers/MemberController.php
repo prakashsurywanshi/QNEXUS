@@ -33,6 +33,7 @@ class MemberController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'phone_number' => ['nullable', 'string', 'max:20'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
@@ -40,6 +41,7 @@ class MemberController extends Controller
 
         $user = User::create([
             'name' => $data['name'],
+            'phone_number' => $data['phone_number'] ?? null,
             'email' => $data['email'],
             'password' => $data['password'],
             'society_id' => active_society_id(),
@@ -71,6 +73,7 @@ class MemberController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email,' . $member->id],
+            'phone_number' => ['nullable', 'string', 'max:20'],
             'password' => ['nullable', 'string', 'min:8'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
         ]);
@@ -78,6 +81,7 @@ class MemberController extends Controller
         $member->fill([
             'name' => $data['name'],
             'email' => $data['email'],
+            'phone_number' => $data['phone_number'] ?? null,
         ]);
         if (!empty($data['password'])) {
             $member->password = $data['password'];

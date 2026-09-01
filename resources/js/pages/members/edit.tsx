@@ -16,6 +16,7 @@ import { update } from '@/routes/members';
 
 type MemberData = {
     name: string;
+    phone_number: string;
     email: string;
     password: string;
     role_id: string;
@@ -24,6 +25,7 @@ type MemberData = {
 interface MemberProps {
     id: number;
     name: string;
+    phone_number: string | null;
     email: string;
 }
 
@@ -38,6 +40,7 @@ export default function EditMember({
 }) {
     const { data, setData, put, processing, errors } = useForm<MemberData>({
         name: member.name,
+        phone_number: member.phone_number ?? '',
         email: member.email,
         password: '',
         role_id: memberRoleId === null || memberRoleId === undefined ? '' : String(memberRoleId),
@@ -59,10 +62,17 @@ export default function EditMember({
                         <Input id="name" name="name" value={data.name} onChange={(e) => setData('name', e.target.value)} required />
                         <InputError message={errors.name} />
                     </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input id="email" name="email" type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} required />
-                        <InputError message={errors.email} />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="phone_number">Phone number</Label>
+                            <Input id="phone_number" name="phone_number" value={data.phone_number} onChange={(e) => setData('phone_number', e.target.value)} />
+                            <InputError message={errors.phone_number} />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="email">Email</Label>
+                            <Input id="email" name="email" type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} required />
+                            <InputError message={errors.email} />
+                        </div>
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="password">New password (optional)</Label>

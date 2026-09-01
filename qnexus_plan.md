@@ -31,16 +31,35 @@ Laravel 13.29 (PHP 8.4.24) + React 19 + Inertia v3 + Tailwind v4 + shadcn/ui + F
 | 11 | Comms & Governance (Notices, Events, Polls) | Done |
 | 12 | Admin/Superadmin (Societies, Members) | Done |
 | 13 | Reports & Payments (Ledger, Vendors, Invoices) | Done |
+| 14 | Full CRUD for all 17 web domains | Done |
+
+## CRUD Coverage (Phase 14)
+Every web resource now has `index / create / store / {id} / edit / update / destroy` via
+resource-style `Route::controller(...)->prefix('x')->name('x.')->group([...])` routes in `routes/web.php`:
+Amenities, Visitors, Notices, Services, Assets, Gatepasses, Patrol, Maintenance, Payments, Budgets,
+Events, Polls, Societies, Members, Ledger, Vendors, Invoices — with create/edit Inertia pages and
+Add/Edit/Delete actions on each index page.
+
+Notable corrections made while porting:
+- `payments` table lacked `society_id` (HasSociety-scoped) → `add_society_id_to_payments_table` migration
+  backfills via `maintenance_apartment` → `maintenance_management.society_id`.
+- `users` table lacked `phone_number` (declared in `User::$fillable`) → `add_phone_number_to_users_table`
+  migration; member create/edit forms and `MemberController` store/update now persist it.
+- Patrol index read a nonexistent `location` column → now `location_description`.
+- RentInvoice index read nonexistent `rent_id`/`amount` → now `lease_agreement_id`/`total_amount`
+  (total computed server-side as rent + CAM + other + tax).
+- Polls pages use `router.post/put` (not `useForm`) because submit options reject extra keys — controller
+  `syncOptions()` replaces `PollOption` rows.
+- Member CRUD keys off the `SocietyUser` pivot for the active society (create user + pivot row; delete pivot only).
 
 ## Current Test Status
 `php artisan test --compact` → **64/64 passed** (213 assertions).
-All 24 web controllers lint-clean; `npx tsc --noEmit` → 0 errors; 22 index pages; 23 index/show web routes.
+All CRUD controllers lint-clean; `npx tsc --noEmit` → 0 errors; `npx vp build` → OK; clean `git status`.
 
 ## Known Env Quirks
 - opencode snapshot feature caused file-drop/revert flakiness; disabled via global config `~/.config/opencode/opencode.json` (`"snapshot": false`) — takes effect on opencode restart.
 - Retry-loop pattern for writes when persistence is flaky.
 
 ## Next
-- Any remaining read/write screens (CRUD) for high-value domains.
-- Nav/sidebar wiring for the new pages.
-- Final `php artisan test` green run + commit per phase.
+- Nav/sidebar wiring for the new CRUD pages (index pages currently reachable by URL only).
+- Optional: Pest coverage for the new CRUD controllers (current 64 tests cover phases 5–6).
