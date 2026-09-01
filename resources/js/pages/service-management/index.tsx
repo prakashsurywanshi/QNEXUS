@@ -1,5 +1,9 @@
+import { Link, useForm } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
+import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { create, destroy, edit } from '@/routes/service-management';
 
 interface Service {
     id: number;
@@ -13,11 +17,26 @@ interface Service {
 }
 
 export default function ServiceManagementIndex({ services }: { services: Service[] }) {
+    const { delete: deleteForm } = useForm();
+
+    const handleDelete = (id: number) => {
+        if (confirm('Delete this service?')) {
+            deleteForm(destroy(id).url);
+        }
+    };
+
     return (
         <>
             <Head title="Services" />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <h1 className="text-xl font-semibold">Services</h1>
+                <div className="flex items-center justify-between">
+                    <h1 className="text-xl font-semibold">Services</h1>
+                    <Button asChild size="sm">
+                        <Link href={create().url}>
+                            <Plus /> Add Service
+                        </Link>
+                    </Button>
+                </div>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                     {services.length === 0 && (
                         <p className="text-muted-foreground">No service providers yet.</p>
@@ -35,6 +54,16 @@ export default function ServiceManagementIndex({ services }: { services: Service
                             <p className="text-muted-foreground text-sm">
                                 ₹{service.price} / {service.payment_frequency}
                             </p>
+                            <div className="mt-3 flex items-center gap-2">
+                                <Button asChild variant="outline" size="sm">
+                                    <Link href={edit(service.id).url}>
+                                        <Pencil /> Edit
+                                    </Link>
+                                </Button>
+                                <Button variant="destructive" size="sm" onClick={() => handleDelete(service.id)}>
+                                    <Trash2 /> Delete
+                                </Button>
+                            </div>
                         </div>
                     ))}
                 </div>

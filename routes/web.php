@@ -44,8 +44,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('{amenity}', 'update')->name('update');
             Route::delete('{amenity}', 'destroy')->name('destroy');
         });
-    Route::get('assets', [AssetController::class, 'index'])->name('assets.index');
-    Route::get('services', [ServiceManagementController::class, 'index'])->name('service-management.index');
+    Route::controller(AssetController::class)
+        ->prefix('assets')
+        ->name('assets.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{asset}/edit', 'edit')->name('edit');
+            Route::put('{asset}', 'update')->name('update');
+            Route::delete('{asset}', 'destroy')->name('destroy');
+        });
+    Route::controller(ServiceManagementController::class)
+        ->prefix('services')
+        ->name('service-management.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{service}/edit', 'edit')->name('edit');
+            Route::put('{service}', 'update')->name('update');
+            Route::delete('{service}', 'destroy')->name('destroy');
+        });
     Route::get('service-types', [ServiceTypeController::class, 'index'])->name('service-types.index');
     Route::get('service-log', [ServiceClockController::class, 'index'])->name('service-log.index');
     Route::controller(VisitorController::class)
