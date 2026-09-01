@@ -145,8 +145,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('{notice}', 'update')->name('update');
             Route::delete('{notice}', 'destroy')->name('destroy');
         });
-    Route::get('events', [EventController::class, 'index'])->name('events.index');
-    Route::get('polls', [PollController::class, 'index'])->name('polls.index');
+    Route::controller(EventController::class)
+        ->prefix('events')
+        ->name('events.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{event}/edit', 'edit')->name('edit');
+            Route::put('{event}', 'update')->name('update');
+            Route::delete('{event}', 'destroy')->name('destroy');
+        });
+    Route::controller(PollController::class)
+        ->prefix('polls')
+        ->name('polls.')
+        ->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('create', 'create')->name('create');
+            Route::post('/', 'store')->name('store');
+            Route::get('{poll}/edit', 'edit')->name('edit');
+            Route::put('{poll}', 'update')->name('update');
+            Route::delete('{poll}', 'destroy')->name('destroy');
+        });
     Route::get('societies', [SocietyAdminController::class, 'index'])->name('societies.index');
     Route::get('members', [MemberController::class, 'index'])->name('members.index');
     Route::get('ledger', [LedgerController::class, 'index'])->name('ledger.index');
