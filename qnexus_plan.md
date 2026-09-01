@@ -52,8 +52,17 @@ Notable corrections made while porting:
   `syncOptions()` replaces `PollOption` rows.
 - Member CRUD keys off the `SocietyUser` pivot for the active society (create user + pivot row; delete pivot only).
 
+Bugs found & fixed by the new Pest CRUD suite (`tests/Feature/Crud/*`):
+- `SetActiveSociety` middleware called `User::societyUser()` (undefined) instead of `societyUsers()`
+  → every authenticated page render 500'd. Fixed in `app/Http/Middleware/SetActiveSociety.php:38`.
+- `asset_managements.tower_id` was `NOT NULL` (Laravel `->nullable()` after `constrained()` quirk) though the
+  AssetController never posts `tower_id` → asset create/update/delete failed. Fixed migration ordering +
+  `make_asset_managements_tower_id_nullable`, and completed `AssetManagement::$fillable`
+  (category_id, location, condition, tower_id, floor_id, apartment_id, file_path, purchase_date, maintenance_schedule).
+
 ## Current Test Status
-`php artisan test --compact` → **64/64 passed** (213 assertions).
+`php artisan test --compact` → **167/167 passed** (579 assertions).
+Coverage: 64 pre-existing (phases 5–6) + 103 new CRUD tests (17 controllers, `tests/Feature/Crud/`).
 All CRUD controllers lint-clean; `npx tsc --noEmit` → 0 errors; `npx vp build` → OK; clean `git status`.
 
 ## Known Env Quirks
@@ -61,5 +70,4 @@ All CRUD controllers lint-clean; `npx tsc --noEmit` → 0 errors; `npx vp build`
 - Retry-loop pattern for writes when persistence is flaky.
 
 ## Next
-- Nav/sidebar wiring for the new CRUD pages (index pages currently reachable by URL only).
-- Optional: Pest coverage for the new CRUD controllers (current 64 tests cover phases 5–6).
+- None — all phases complete, sidebar/nav wired for every CRUD page, and full Pest coverage (incl. CRUD) is green.

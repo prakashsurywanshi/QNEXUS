@@ -14,7 +14,15 @@ class AssetManagement extends Model
     protected $fillable = [
         'society_id',
         'name',
-
+        'category_id',
+        'location',
+        'condition',
+        'tower_id',
+        'floor_id',
+        'apartment_id',
+        'file_path',
+        'purchase_date',
+        'maintenance_schedule',
     ];
 
     protected $appends = [

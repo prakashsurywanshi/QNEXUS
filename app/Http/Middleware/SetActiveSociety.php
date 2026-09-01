@@ -35,7 +35,7 @@ class SetActiveSociety
                     'role' => $activeRoleName,
                     'permissions' => \role_permissions(),
                     'switchable' => $request->user()
-                        ? $request->user()->societyUser()
+                        ? $request->user()->societyUsers()
                             ?->with('society')
                             ->get()
                             ->map(fn ($pivot) => [
