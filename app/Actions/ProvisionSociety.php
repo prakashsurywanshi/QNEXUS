@@ -6,60 +6,19 @@ use App\Models\GlobalCurrency;
 use App\Models\GlobalInvoice;
 use App\Models\GlobalSubscription;
 use App\Models\Package;
-use App\Models\Permission;
-use App\Models\Role;
 use App\Models\Society;
+use Database\Seeders\RoleSeeder;
 
 /**
  * Provisions everything a newly created society needs: per-society roles,
- * a default package subscription, first invoice and default currency link.
+ * a default package subscription and the first invoice.
  */
 class ProvisionSociety
 {
     public function __invoke(Society $society): void
     {
-        $this->provisionRoles($society);
+        (new RoleSeeder)->run($society);
         $this->provisionSubscription($society);
-    }
-
-    private function provisionRoles(Society $society): void
-    {
-        $roleNames = config('modules.role_types', ['Admin', 'Manager', 'Owner', 'Tenant', 'Guard']);
-        $rolePermissions = config('modules.role_permissions', []);
-
-        /** @var array<string, Role|null> $roles */
-        $roles = [];
-        foreach ($roleNames as $displayName) {
-            $roles[$displayName] = Role::firstOrCreate(
-                [
-                    'name' => $displayName.'_'.$society->id,
-                    'guard_name' => 'web',
-                ],
-                [
-                    'display_name' => $displayName,
-                    'society_id' => $society->id,
-                ]
-            );
-        }
-
-        $allPermissions = Permission::pluck('name')->all();
-
-        $adminRole = $roles['Admin'] ?? null;
-        $managerRole = $roles['Manager'] ?? null;
-
-        $adminRole?->syncPermissions($allPermissions);
-        $managerRole?->syncPermissions($allPermissions);
-
-        foreach (['Owner', 'Tenant', 'Guard'] as $role) {
-            $roleModel = $roles[$role] ?? null;
-            if (! $roleModel) {
-                continue;
-            }
-
-            $roleModel->syncPermissions(
-                Permission::whereIn('name', $rolePermissions[$role] ?? [])->get()
-            );
-        }
     }
 
     private function provisionSubscription(Society $society): void

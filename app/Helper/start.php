@@ -293,15 +293,19 @@ if (!function_exists('global_setting')) {
      */
     function global_setting()
     {
-        static $settings = null;
-        static $resolved = false;
+        return \App\Support\GlobalSettingCache::get();
+    }
 
-        if (!$resolved) {
-            $settings = \App\Models\GlobalSetting::first();
-            $resolved = true;
+    if (!function_exists('forget_global_settings_cache')) {
+
+        /**
+         * Invalidate the cached global settings so the next call re-queries the
+         * database (used after a DB refresh in long-running processes/tests).
+         */
+        function forget_global_settings_cache(): void
+        {
+            \App\Support\GlobalSettingCache::forget();
         }
-
-        return $settings;
     }
 }
 

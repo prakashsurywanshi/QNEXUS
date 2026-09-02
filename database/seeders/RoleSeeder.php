@@ -2,29 +2,35 @@
 
 namespace Database\Seeders;
 
+use App\Models\Permission;
 use App\Models\Role;
+use App\Models\Society;
 use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
     /**
-     * Provision the five per-society roles and their permissions.
+     * Provision (idempotently) the five per-society roles and their permissions.
+     * Idempotent so it can be called on an already-provisioned society (e.g.
+     * when the SocietyObserver already auto-provisioned roles on creation).
      */
-    public function run($society): void
+    public function run(Society $society): void
     {
         $roleNames = config('modules.role_types'); // Admin, Manager, Owner, Tenant, Guard
 
         $roles = [];
         foreach ($roleNames as $displayName) {
-            $roles[$displayName] = Role::create([
-                'name' => $displayName . '_' . $society->id,
-                'display_name' => $displayName,
-                'guard_name' => 'web',
-                'society_id' => $society->id,
-            ]);
+            $roles[$displayName] = Role::firstOrCreate(
+                ['name' => $displayName.'_'.$society->id],
+                [
+                    'display_name' => $displayName,
+                    'guard_name' => 'web',
+                    'society_id' => $society->id,
+                ]
+            );
         }
 
-        $allPermissions = \App\Models\Permission::pluck('name')->all();
+        $allPermissions = Permission::pluck('name')->all();
 
         $roles['Admin']->syncPermissions($allPermissions);
         $roles['Manager']->syncPermissions($allPermissions);
@@ -33,7 +39,7 @@ class RoleSeeder extends Seeder
 
         foreach (['Owner', 'Tenant', 'Guard'] as $role) {
             $roles[$role]->syncPermissions(
-                \App\Models\Permission::whereIn('name', $rolePermissions[$role] ?? [])->get()
+                Permission::whereIn('name', $rolePermissions[$role] ?? [])->get()
             );
         }
     }
