@@ -3,6 +3,7 @@
 namespace Tests\Feature\SuperAdmin;
 
 use App\Models\GlobalCurrency;
+use App\Models\Module;
 use App\Models\Package;
 use Database\Seeders\ModuleSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -47,7 +48,7 @@ class PackagesTest extends SuperAdminTestCase
             'annual_price' => 9990,
             'package_type' => 'standard',
             'is_recommended' => true,
-            'module_ids' => \App\Models\Module::orderBy('id')->limit(3)->pluck('id')->all(),
+            'module_ids' => Module::orderBy('id')->limit(3)->pluck('id')->all(),
         ])->assertRedirect(route('superadmin.packages.index'));
 
         $package = Package::where('package_name', 'Enterprise')->firstOrFail();

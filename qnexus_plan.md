@@ -65,13 +65,39 @@ Bugs found & fixed by the new Pest CRUD suite (`tests/Feature/Crud/*`):
   (category_id, location, condition, tower_id, floor_id, apartment_id, file_path, purchase_date, maintenance_schedule).
 
 ## Current Test Status
-`php artisan test --compact` → **191/191 passed** (667 assertions).
-Coverage: 64 pre-existing (phases 5–6) + 127 CRUD tests (21 controllers, `tests/Feature/Crud/`).
-All CRUD controllers lint-clean; `npx tsc --noEmit` → 0 errors; `npx vp build` → OK; clean `git status`.
+`php artisan test --compact` → **224/224 passed** (792 assertions).
+Coverage: 64 pre-existing (phases 5–6) + 127 CRUD tests (21 controllers, `tests/Feature/Crud/`)
++ 33 new platform tests (`tests/Feature/SuperAdmin/`, `tests/Feature/Front/`).
+All new controllers/Actions lint-clean + isolated-phpstan-clean; `npx tsc --noEmit` → 0 errors;
+`npm run build` → OK; clean `git status`.
+
+## Platform Build (Phases A–F)
+SuperAdmin platform, CMS, public marketing front site, packages/billing and society onboarding
+built on top of the ported tenancy core:
+
+- **Phase A/A2 — Superadmin shell**: `global_setting()`/`is_superadmin()` helpers, `EnsureSuperAdmin`
+  (403 for non-superadmin, society_id null), `DisableLandingSite`, Inertia `isSuperadmin`/`globalSettings`
+  shares, idempotent seeders (GlobalSettings/GlobalCurrency/Superadmin), `/super-admin/*` routes (names
+  `superadmin.*`), `SuperAdminLayout` + data-driven sidebar, dashboard + global-settings pages.
+- **Phase B/B2 — CMS**: `cms_pages`/`cms_sections`/`blog_posts` migrations + models, `EnsuresUniqueSlug`,
+  `SuperAdmin\CmsPage/Section/BlogPost` controllers (phpstan-clean), resource routes, admin CRUD pages.
+- **Phase C/C2 — Public site**: `FrontendController` (home/page/blog/post) behind `disable.landing`
+  middleware, `SiteLayout`, `site/{home,page,blog,post}` pages, `CmsContentSeeder` content,
+  `disable_landing_site` toggle redirects guests to login.
+- **Phase D — Packages**: `package_id` on societies, `SuperAdmin\PackageController` CRUD syncing
+  `package_modules` against the 54-module registry, `PackageType` enum, `Package` typed relations.
+- **Phase E — Onboarding**: `SocietyObserver::created()` → `ProvisionSociety` action calls `RoleSeeder`
+  (idempotent, 5 per-society roles) + creates default free-package subscription + first invoice;
+  `PackageSeeder` default free package; `GlobalSettingCache` (resettable static) powers `global_setting()`.
+- **Phase F — Tests**: full Pest suite for all of the above (224 total green).
 
 ## Known Env Quirks
 - opencode snapshot feature caused file-drop/revert flakiness; disabled via global config `~/.config/opencode/opencode.json` (`"snapshot": false`) — takes effect on opencode restart.
 - Retry-loop pattern for writes when persistence is flaky.
+- `RoleSeeder` must stay idempotent (`firstOrCreate`) because the SocietyObserver auto-provisions roles;
+  `RefreshDatabase` (transaction rollback) keeps auto-increment, so tests must fetch IDs dynamically
+  (never hardcode IDs like `module_ids => [1,2,3]`).
 
 ## Next
-- None — all phases complete, sidebar/nav wired for every CRUD page, and full Pest coverage (incl. CRUD) is green.
+- Feature-level build complete. Remaining roadmap items (payment gateway credential provisioning on
+  society create, optional gateway models) can be folded into Phase E or a follow-up as needed.
