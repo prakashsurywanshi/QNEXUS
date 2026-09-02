@@ -13,13 +13,15 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
-    public function run(): void    {
+    public function run(): void
+    {
         $this->call([
             GlobalSettingsSeeder::class,
             GlobalCurrencySeeder::class,
             SuperadminSeeder::class,
             PackageSeeder::class,
             CmsContentSeeder::class,
+            DummyUsersSeeder::class,
         ]);
 
         User::firstOrCreate(
