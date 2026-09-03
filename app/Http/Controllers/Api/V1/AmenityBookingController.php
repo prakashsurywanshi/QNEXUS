@@ -7,6 +7,7 @@ use App\Models\Amenities;
 use App\Models\BookAmenity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AmenityBookingController extends RoleAwareApiController
 {
@@ -42,11 +43,11 @@ class AmenityBookingController extends RoleAwareApiController
             ->where('status', 'available')
             ->first();
 
-        if (!$amenity) {
+        if (! $amenity) {
             return $this->notFound('Amenity not found in this society.');
         }
 
-        $booking = new BookAmenity();
+        $booking = new BookAmenity;
         $booking->society_id = $society->id;
         $booking->amenity_id = $amenity->id;
         $booking->booked_by = $this->authUser()->id;
@@ -54,7 +55,7 @@ class AmenityBookingController extends RoleAwareApiController
         $booking->booking_time = $validated['booking_time'];
         $booking->persons = $validated['persons'];
         $booking->booking_type = $validated['booking_type'] ?? 'single';
-        $booking->unique_id = (string) \Illuminate\Support\Str::uuid();
+        $booking->unique_id = (string) Str::uuid();
         $booking->save();
 
         return $this->created($booking, 'Amenity booked successfully');

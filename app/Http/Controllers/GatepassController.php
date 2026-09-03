@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\ApartmentManagement;
 use App\Models\Gatepass;
+use App\Services\QrCodeService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -17,6 +17,17 @@ class GatepassController extends Controller
     {
         return Inertia::render('gatepasses/index', [
             'gatepasses' => Gatepass::get(),
+        ]);
+    }
+
+    public function showQr(Gatepass $gatepass, QrCodeService $qr): Response
+    {
+        $verifyUrl = route('qr.verify', ['token' => $gatepass->qr_code]);
+
+        return Inertia::render('gatepasses/qr', [
+            'gatepass' => $gatepass,
+            'qrDataUri' => $qr->dataUri($verifyUrl),
+            'verifyUrl' => $verifyUrl,
         ]);
     }
 

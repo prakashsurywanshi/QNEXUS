@@ -2,17 +2,16 @@
 
 namespace App\Models;
 
-use App\Models\ApartmentParking;
-use App\Models\ApartmentManagement;
 use App\Traits\HasSociety;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class ParkingManagementSetting extends Model
 {
     use HasFactory, HasSociety;
 
     protected $table = 'parking_managements';
+
     protected $fillable = [
         'apartment_id',
         'parking_code',
@@ -21,7 +20,7 @@ class ParkingManagementSetting extends Model
 
     public function apartment()
     {
-        return $this->belongsTo(Apartment::class, "apartment_id");
+        return $this->belongsTo(Apartment::class, 'apartment_id');
     }
 
     public function apartmentManagement()
@@ -41,7 +40,7 @@ class ParkingManagementSetting extends Model
 
     public function parkingCode()
     {
-        return $this->hasOne(ApartmentParking::class,   'parking_id');
+        return $this->hasOne(ApartmentParking::class, 'parking_id');
     }
 
     public function apartmentParking()

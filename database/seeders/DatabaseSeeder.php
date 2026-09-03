@@ -20,7 +20,10 @@ class DatabaseSeeder extends Seeder
             GlobalCurrencySeeder::class,
             SuperadminSeeder::class,
             PackageSeeder::class,
+            ModuleSeeder::class,
+            PermissionSeeder::class,
             CmsContentSeeder::class,
+            NotificationTemplateSeeder::class,
             DummyUsersSeeder::class,
         ]);
 

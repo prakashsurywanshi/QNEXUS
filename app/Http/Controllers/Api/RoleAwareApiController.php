@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Models\Role;
 use App\Models\Society;
 use App\Models\User;
+use App\Scopes\SocietyScope;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -47,7 +48,7 @@ abstract class RoleAwareApiController extends BaseApiController
         $this->authUser = \user();
 
         if ($this->authUser && $this->authUser->society_id) {
-            $this->activeSociety = \App\Models\Society::find($this->authUser->society_id);
+            $this->activeSociety = Society::find($this->authUser->society_id);
         } else {
             $this->activeSociety = null;
         }
@@ -62,12 +63,12 @@ abstract class RoleAwareApiController extends BaseApiController
     {
         $roleId = \active_role_id();
 
-        if (!$roleId) {
+        if (! $roleId) {
             return null;
         }
 
         return Role::where('id', $roleId)
-            ->withoutGlobalScope(\App\Scopes\SocietyScope::class)
+            ->withoutGlobalScope(SocietyScope::class)
             ->first();
     }
 
@@ -122,7 +123,7 @@ abstract class RoleAwareApiController extends BaseApiController
      */
     protected function can(string $permission): bool
     {
-        if (!$this->activeRole) {
+        if (! $this->activeRole) {
             return false;
         }
 
@@ -144,7 +145,7 @@ abstract class RoleAwareApiController extends BaseApiController
      */
     protected function authorizeRole(array $names): void
     {
-        if (!$this->roleIs($names)) {
+        if (! $this->roleIs($names)) {
             abort(response()->json([
                 'success' => false,
                 'message' => 'You do not have permission to perform this action.',
@@ -157,10 +158,10 @@ abstract class RoleAwareApiController extends BaseApiController
      */
     protected function authorizePermission(string $permission): void
     {
-        if (!$this->can($permission)) {
+        if (! $this->can($permission)) {
             abort(response()->json([
                 'success' => false,
-                'message' => 'Forbidden. You lack permission: ' . $permission,
+                'message' => 'Forbidden. You lack permission: '.$permission,
             ], 403));
         }
     }
@@ -172,7 +173,7 @@ abstract class RoleAwareApiController extends BaseApiController
     {
         $this->resolveContext();
 
-        if (!$this->authUser) {
+        if (! $this->authUser) {
             abort(response()->json([
                 'success' => false,
                 'message' => 'Unauthenticated.',
@@ -188,7 +189,7 @@ abstract class RoleAwareApiController extends BaseApiController
         $this->resolveContext();
         $this->requireAuth();
 
-        if (!$this->activeSociety) {
+        if (! $this->activeSociety) {
             abort(response()->json([
                 'success' => false,
                 'message' => 'No active society for this user.',
@@ -211,7 +212,7 @@ abstract class RoleAwareApiController extends BaseApiController
 
         $model = $query->find($id);
 
-        if (!$model) {
+        if (! $model) {
             throw new NotFoundHttpException('Resource not found.');
         }
 
@@ -223,9 +224,9 @@ abstract class RoleAwareApiController extends BaseApiController
      */
     protected function tenantColumns(string $modelClass): array
     {
-        if (!isset($this->tenantScopes[$modelClass])) {
-            $model = new $modelClass();
-            $this->tenantScopes[$modelClass] = \Illuminate\Support\Facades\Schema::hasColumn($model->getTable(), 'society_id')
+        if (! isset($this->tenantScopes[$modelClass])) {
+            $model = new $modelClass;
+            $this->tenantScopes[$modelClass] = Schema::hasColumn($model->getTable(), 'society_id')
                 ? ['society_id']
                 : [];
         }

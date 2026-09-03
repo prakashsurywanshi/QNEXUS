@@ -62,4 +62,38 @@ class DashboardTest extends SuperAdminTestCase
                     ->has('recentSocieties')
             );
     }
+
+    public function test_superadmin_login_redirects_to_superadmin_dashboard(): void
+    {
+        auth()->logout();
+
+        $this->post(route('login'), [
+            'email' => $this->superadmin->email,
+            'password' => 'password',
+        ])->assertRedirect(route('superadmin.dashboard'));
+    }
+
+    public function test_superadmin_navigating_to_member_dashboard_is_redirected(): void
+    {
+        $this->get(route('dashboard', absolute: false))
+            ->assertRedirect(route('superadmin.dashboard'));
+    }
+
+    public function test_member_of_inactive_society_is_blocked(): void
+    {
+        $society = Society::create([
+            'name' => 'Decommissioned Estate',
+            'property_type' => 'residential',
+            'is_active' => false,
+        ]);
+
+        $user = User::factory()->create([
+            'email' => 'member@inactive.test',
+            'society_id' => $society->id,
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('dashboard', absolute: false))
+            ->assertForbidden();
+    }
 }

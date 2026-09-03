@@ -12,4 +12,9 @@ class VisitorTypeSettingsModel extends Model
 
     protected $table = 'visitor_settings';
 
+    protected $fillable = [
+        'society_id',
+        'name',
+        'description',
+    ];
 }

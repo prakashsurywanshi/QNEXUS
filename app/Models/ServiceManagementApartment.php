@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Traits\HasSociety;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,7 +12,7 @@ class ServiceManagementApartment extends Model
     protected $table = 'service_management_apartment';
 
     protected $fillable = [
-        'service_management_id', 'apartment_management_id'
+        'service_management_id', 'apartment_management_id',
     ];
 
     public function serviceManagement()
@@ -25,5 +24,4 @@ class ServiceManagementApartment extends Model
     {
         return $this->belongsTo(ApartmentManagement::class, 'apartment_management_id');
     }
-
 }

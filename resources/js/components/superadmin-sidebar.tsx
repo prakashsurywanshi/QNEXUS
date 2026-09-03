@@ -10,7 +10,6 @@ import {
     PackageOpen,
     Settings,
     ShieldCheck,
-    Store,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -32,6 +31,11 @@ import { index as pagesIndex } from '@/routes/superadmin/cms/pages';
 import { index as postsIndex } from '@/routes/superadmin/blog/posts';
 import { index as sectionsIndex } from '@/routes/superadmin/cms/sections';
 import { index as packagesIndex } from '@/routes/superadmin/packages';
+import { index as societiesIndex } from '@/routes/superadmin/societies';
+import { index as subscriptionsIndex } from '@/routes/superadmin/subscriptions';
+import { index as invoicesIndex } from '@/routes/superadmin/invoices';
+import { index as gatewaysIndex } from '@/routes/superadmin/gateways';
+import { index as offlineRequestsIndex } from '@/routes/superadmin/offline-requests';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -64,8 +68,7 @@ const groupedNavItems = [
         title: 'Societies',
         icon: Building2,
         items: [
-            { title: 'All Societies', href: '#', icon: Building2 },
-            { title: 'Provision New', href: '#', icon: Store },
+            { title: 'All Societies', href: societiesIndex().url, icon: Building2 },
         ],
     },
     {
@@ -73,9 +76,10 @@ const groupedNavItems = [
         icon: PackageOpen,
         items: [
             { title: 'Packages', href: packagesIndex().url, icon: PackageOpen },
-            { title: 'Subscriptions', href: '#', icon: CreditCard },
-            { title: 'Invoices', href: '#', icon: FileText },
-            { title: 'Gateways', href: '#', icon: CreditCard },
+            { title: 'Subscriptions', href: subscriptionsIndex().url, icon: CreditCard },
+            { title: 'Invoices', href: invoicesIndex().url, icon: FileText },
+            { title: 'Gateways', href: gatewaysIndex().url, icon: CreditCard },
+            { title: 'Offline Requests', href: offlineRequestsIndex().url, icon: FileText },
         ],
     },
 ];

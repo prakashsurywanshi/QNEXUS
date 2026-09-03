@@ -35,4 +35,17 @@ return [
         ],
     ],
 
+    'webpush' => [
+        'enabled' => (bool) env('WEBPUSH_ENABLED', false),
+        'vapid_public_key' => env('WEBPUSH_VAPID_PUBLIC_KEY'),
+        'vapid_private_key' => env('WEBPUSH_VAPID_PRIVATE_KEY'),
+        'vapid_subject' => env('WEBPUSH_VAPID_SUBJECT'),
+    ],
+
+    'sms' => [
+        'enabled' => (bool) env('SMS_ENABLED', false),
+        'provider' => env('SMS_PROVIDER', 'log'),
+        'from' => env('SMS_FROM'),
+    ],
+
 ];

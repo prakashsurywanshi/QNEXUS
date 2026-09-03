@@ -22,8 +22,10 @@ type SocietyData = {
     timezone: string;
     address: string;
     property_type: string;
-    is_active: boolean;
     show_logo_text: boolean;
+    logo: File | null;
+    theme_hex: string;
+    theme_rgb: string;
 };
 
 interface SocietyProps {
@@ -34,8 +36,10 @@ interface SocietyProps {
     timezone: string | null;
     address: string | null;
     property_type: string | null;
-    is_active: boolean;
     show_logo_text: boolean;
+    logo_url?: string | null;
+    theme_hex?: string | null;
+    theme_rgb?: string | null;
 }
 
 export default function EditSociety({ society }: { society: SocietyProps }) {
@@ -46,8 +50,10 @@ export default function EditSociety({ society }: { society: SocietyProps }) {
         timezone: society.timezone ?? '',
         address: society.address ?? '',
         property_type: society.property_type ?? 'residential',
-        is_active: Boolean(society.is_active),
         show_logo_text: Boolean(society.show_logo_text),
+        logo: null,
+        theme_hex: society.theme_hex ?? '',
+        theme_rgb: society.theme_rgb ?? '',
     });
 
     const save = (e: React.FormEvent) => {
@@ -102,12 +108,48 @@ export default function EditSociety({ society }: { society: SocietyProps }) {
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                            <input id="is_active" type="checkbox" checked={data.is_active} onChange={(e) => setData('is_active', e.target.checked)} className="size-4" />
-                            <Label htmlFor="is_active">Active</Label>
-                        </div>
-                        <div className="flex items-center gap-2">
                             <input id="show_logo_text" type="checkbox" checked={data.show_logo_text} onChange={(e) => setData('show_logo_text', e.target.checked)} className="size-4" />
                             <Label htmlFor="show_logo_text">Show logo text</Label>
+                        </div>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="logo">Logo</Label>
+                        <Input
+                            id="logo"
+                            name="logo"
+                            type="file"
+                            accept="image/jpeg,image/png,image/svg+xml,image/webp"
+                            onChange={(e) => setData('logo', e.target.files?.[0] ?? null)}
+                        />
+                        <InputError message={errors.logo} />
+                        {society.logo_url && (
+                            <img src={society.logo_url} alt="Society logo" className="mt-2 h-12 w-12 rounded-md object-contain" />
+                        )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="theme_hex">Brand colour (hex)</Label>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="color"
+                                    value={data.theme_hex || '#6d28d9'}
+                                    onChange={(e) => setData('theme_hex', e.target.value)}
+                                    className="h-9 w-10 rounded-md border border-input"
+                                />
+                                <Input
+                                    id="theme_hex"
+                                    name="theme_hex"
+                                    value={data.theme_hex}
+                                    placeholder="#6d28d9"
+                                    onChange={(e) => setData('theme_hex', e.target.value)}
+                                />
+                            </div>
+                            <InputError message={errors.theme_hex} />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="theme_rgb">Brand colour (rgb)</Label>
+                            <Input id="theme_rgb" name="theme_rgb" value={data.theme_rgb} placeholder="e.g. 109 40 217" onChange={(e) => setData('theme_rgb', e.target.value)} />
+                            <InputError message={errors.theme_rgb} />
                         </div>
                     </div>
                     <div className="flex items-center gap-4">

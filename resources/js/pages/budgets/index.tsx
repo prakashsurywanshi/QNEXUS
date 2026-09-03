@@ -2,7 +2,7 @@ import { Link, useForm } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import EmptyState from '@/components/empty-state';
 import { create, destroy, edit } from '@/routes/budgets';
 
 interface Budget {
@@ -35,9 +35,7 @@ export default function BudgetsIndex({ budgets }: { budgets: Budget[] }) {
                     </Button>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {budgets.length === 0 && (
-                        <p className="text-muted-foreground">No budgets yet.</p>
-                    )}
+                    {budgets.length === 0 && <EmptyState icon={Plus} title="No budgets yet" description="Create your first budget to get started." />}
                     {budgets.map((b) => (
                         <div key={b.id} className="border-sidebar-border/70 dark:border-sidebar-border rounded-xl border p-4">
                             <span className="font-medium">{b.fiscal_year}</span>
@@ -57,9 +55,7 @@ export default function BudgetsIndex({ budgets }: { budgets: Budget[] }) {
                         </div>
                     ))}
                 </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[20vh] overflow-hidden rounded-xl border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+
             </div>
         </>
     );

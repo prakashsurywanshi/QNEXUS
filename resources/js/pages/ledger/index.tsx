@@ -2,7 +2,7 @@ import { Link, useForm } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import EmptyState from '@/components/empty-state';
 import { create, destroy, edit } from '@/routes/ledger';
 
 interface Entry {
@@ -49,7 +49,7 @@ export default function LedgerIndex({ entries }: { entries: Entry[] }) {
                         </thead>
                         <tbody>
                             {entries.length === 0 && (
-                                <tr><td colSpan={6} className="text-muted-foreground px-3 py-4 text-center">No ledger entries yet.</td></tr>
+                                <tr><td colSpan={6}><EmptyState icon={Plus} title="No ledger entries yet" description="Add your first entry to get started." /></td></tr>
                             )}
                             {entries.map((e) => (
                                 <tr key={e.id} className="hover:bg-muted/50 border-b">
@@ -75,9 +75,7 @@ export default function LedgerIndex({ entries }: { entries: Entry[] }) {
                         </tbody>
                     </table>
                 </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[20vh] overflow-hidden rounded-xl border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+
             </div>
         </>
     );

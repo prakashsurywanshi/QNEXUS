@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Society;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
@@ -21,7 +22,11 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_screen()
     {
-        $user = User::factory()->create();
+        $society = Society::create(['name' => 'Lakeside Residency', 'property_type' => 'residential']);
+
+        $user = User::factory()->create([
+            'society_id' => $society->id,
+        ]);
 
         $response = $this->post(route('login.store'), [
             'email' => $user->email,

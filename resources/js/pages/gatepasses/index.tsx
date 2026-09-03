@@ -1,9 +1,9 @@
 import { Link, useForm } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, QrCode, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
-import { create, destroy, edit } from '@/routes/gatepasses';
+import EmptyState from '@/components/empty-state';
+import { create, destroy, edit, qr } from '@/routes/gatepasses';
 
 interface Gatepass {
     id: number;
@@ -42,9 +42,7 @@ export default function GatepassesIndex({ gatepasses }: { gatepasses: Gatepass[]
                     </Button>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {gatepasses.length === 0 && (
-                        <p className="text-muted-foreground">No gatepasses yet.</p>
-                    )}
+                    {gatepasses.length === 0 && <EmptyState icon={QrCode} title="No gatepasses yet" description="Create your first gatepass to get started." />}
                     {gatepasses.map((gp) => (
                         <div key={gp.id} className="border-sidebar-border/70 dark:border-sidebar-border rounded-xl border p-4">
                             <div className="flex items-center justify-between">
@@ -61,6 +59,11 @@ export default function GatepassesIndex({ gatepasses }: { gatepasses: Gatepass[]
                                         <Pencil /> Edit
                                     </Link>
                                 </Button>
+                                <Button asChild variant="outline" size="sm">
+                                    <Link href={qr(gp.id).url}>
+                                        <QrCode /> QR
+                                    </Link>
+                                </Button>
                                 <Button variant="destructive" size="sm" onClick={() => handleDelete(gp.id)}>
                                     <Trash2 /> Delete
                                 </Button>
@@ -68,9 +71,7 @@ export default function GatepassesIndex({ gatepasses }: { gatepasses: Gatepass[]
                         </div>
                     ))}
                 </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[20vh] overflow-hidden rounded-xl border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+
             </div>
         </>
     );

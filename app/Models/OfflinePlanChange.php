@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Scopes\SocietyScope;
 use App\Traits\HasSociety;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OfflinePlanChange extends Model
 {
@@ -26,17 +27,17 @@ class OfflinePlanChange extends Model
 
     protected $appends = ['file'];
 
-    public function society()
+    public function society(): BelongsTo
     {
         return $this->belongsTo(Society::class, 'society_id');
     }
 
-    public function package()
+    public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class, 'package_id');
     }
 
-    public function offlineMethod()
+    public function offlineMethod(): BelongsTo
     {
         return $this->belongsTo(OfflinePaymentMethod::class, 'offline_method_id')->withoutGlobalScope(SocietyScope::class);
     }

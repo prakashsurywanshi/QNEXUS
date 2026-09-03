@@ -86,4 +86,45 @@ class GatepassesCrudTest extends CrudTestCase
 
         $this->assertDatabaseMissing('gatepasses', ['id' => $gatepass->id]);
     }
+
+    public function test_qr_page_renders_with_data_uri()
+    {
+        $gatepass = Gatepass::create([
+            'society_id' => $this->society->id,
+            'user_id' => $this->user->id,
+            'item_description' => 'QR Test',
+            'gatepass_type' => 'in',
+            'status' => 'approved',
+        ]);
+
+        $this->get(route('gatepasses.qr', $gatepass))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('gatepasses/qr')
+                ->has('qrDataUri')
+                ->where('gatepass.id', $gatepass->id));
+    }
+
+    public function test_public_verify_route_validates_gatepass_token()
+    {
+        $gatepass = Gatepass::create([
+            'society_id' => $this->society->id,
+            'user_id' => $this->user->id,
+            'item_description' => 'Verify Me',
+            'gatepass_type' => 'in',
+            'status' => 'approved',
+        ]);
+
+        $this->get(route('qr.verify', ['token' => $gatepass->qr_code]))
+            ->assertOk()
+            ->assertSee('Valid')
+            ->assertSee('Gatepass');
+    }
+
+    public function test_public_verify_route_invalid_token()
+    {
+        $this->get(route('qr.verify', ['token' => 'UNKNOWN_TOKEN']))
+            ->assertOk()
+            ->assertSee('Invalid QR Code');
+    }
 }

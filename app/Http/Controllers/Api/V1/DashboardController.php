@@ -44,7 +44,7 @@ class DashboardController extends RoleAwareApiController
                 $data['counts'] = [
                     'residents' => Apartment::where($baseSociety)->count(),
                     'open_tickets' => Ticket::where($baseSociety)->where('status', '!=', 'closed')->count(),
-                    'active_visitors' => VisitorManagement::where($baseSociety)->where('status', 'active')->count(),
+                    'active_visitors' => VisitorManagement::where($baseSociety)->where('status', 'allowed')->count(),
                     'amenity_bookings' => AmenityBooking::where($baseSociety)->count(),
                     'notices' => Notice::where($baseSociety)->count(),
                     'daily_help_bookings' => DailyHelpBooking::where($baseSociety)->count(),

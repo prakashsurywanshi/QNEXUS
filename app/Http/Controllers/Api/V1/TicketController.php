@@ -7,7 +7,6 @@ use App\Models\Ticket;
 use App\Models\TicketReply;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class TicketController extends RoleAwareApiController
@@ -42,7 +41,7 @@ class TicketController extends RoleAwareApiController
             'type_id' => 'nullable|integer|exists:ticket_type_settings,id',
         ]);
 
-        $ticket = new Ticket();
+        $ticket = new Ticket;
         $ticket->society_id = $society->id;
         $ticket->ticket_number = (Ticket::where('society_id', $society->id)->max('ticket_number') ?? 0) + 1;
         $ticket->user_id = $this->authUser()->id;
@@ -60,7 +59,7 @@ class TicketController extends RoleAwareApiController
 
         $ticket = Ticket::where('society_id', $society->id)->find($id);
 
-        if (!$ticket) {
+        if (! $ticket) {
             return $this->notFound('Ticket not found.');
         }
 
@@ -81,7 +80,7 @@ class TicketController extends RoleAwareApiController
 
         $ticket = Ticket::where('society_id', $society->id)->find($id);
 
-        if (!$ticket) {
+        if (! $ticket) {
             return $this->notFound('Ticket not found.');
         }
 
@@ -101,7 +100,7 @@ class TicketController extends RoleAwareApiController
 
         $ticket = Ticket::where('society_id', $society->id)->find($id);
 
-        if (!$ticket) {
+        if (! $ticket) {
             return $this->notFound('Ticket not found.');
         }
 
@@ -113,7 +112,7 @@ class TicketController extends RoleAwareApiController
             'reply' => 'required|string',
         ]);
 
-        $reply = new TicketReply();
+        $reply = new TicketReply;
         $reply->ticket_id = $ticket->id;
         $reply->user_id = $this->authUser()->id;
         $reply->message = $validated['reply'];

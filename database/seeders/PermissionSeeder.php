@@ -16,7 +16,7 @@ class PermissionSeeder extends Seeder
         foreach (config('modules.modules') as $moduleName => $permissions) {
             $module = Module::where('name', $moduleName)->first();
 
-            if (!$module) {
+            if (! $module) {
                 continue;
             }
 

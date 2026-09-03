@@ -11,11 +11,14 @@ use App\Models\LeaseAgreement;
 use App\Models\MaintenanceApartment;
 use App\Models\MaintenanceManagement;
 use App\Models\Role;
+use App\Models\ServiceRequest;
 use App\Models\ServiceType;
 use App\Models\Society;
 use App\Models\SocietyUser;
 use App\Models\Tower;
 use App\Models\User;
+use App\Models\Vendor;
+use App\Scopes\SocietyScope;
 use Database\Seeders\ModuleSeeder;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RoleSeeder;
@@ -28,7 +31,9 @@ abstract class CrudTestCase extends TestCase
     use RefreshDatabase;
 
     protected Society $society;
+
     protected User $user;
+
     protected Role $admin;
 
     protected function setUp(): void
@@ -49,11 +54,11 @@ abstract class CrudTestCase extends TestCase
 
         $society = Society::create(['name' => 'Crud Test Society']);
 
-        (new RoleSeeder())->run($society);
+        (new RoleSeeder)->run($society);
 
         $user = User::factory()->create(['society_id' => $society->id]);
 
-        $admin = Role::withoutGlobalScope(\App\Scopes\SocietyScope::class)
+        $admin = Role::withoutGlobalScope(SocietyScope::class)
             ->where('society_id', $society->id)
             ->where('display_name', 'Admin')
             ->firstOrFail();
@@ -75,7 +80,7 @@ abstract class CrudTestCase extends TestCase
     {
         return Model::unguarded(fn () => ChartOfAccount::create([
             'society_id' => $this->society->id,
-            'account_code' => 'AC-' . random_int(1000, 9999),
+            'account_code' => 'AC-'.random_int(1000, 9999),
             'account_name' => 'Test Account',
             'account_type' => 'expense',
             'is_active' => true,
@@ -151,11 +156,33 @@ abstract class CrudTestCase extends TestCase
         return Model::unguarded(fn () => LeaseAgreement::create([
             'society_id' => $this->society->id,
             'commercial_tenant_id' => $tenant->id,
-            'lease_number' => 'LS-' . random_int(1000, 9999),
+            'lease_number' => 'LS-'.random_int(1000, 9999),
             'start_date' => now()->format('Y-m-d'),
             'end_date' => now()->addYear()->format('Y-m-d'),
             'monthly_rent' => 10000,
             'status' => 'active',
         ]));
+    }
+
+    public function createVendor(): Vendor
+    {
+        return Model::unguarded(fn () => Vendor::create([
+            'society_id' => $this->society->id,
+            'name' => 'Test Vendor',
+            'status' => 'active',
+        ]));
+    }
+
+    public function createServiceRequest(array $overrides = []): ServiceRequest
+    {
+        return ServiceRequest::create(array_merge([
+            'society_id' => $this->society->id,
+            'user_id' => $this->user->id,
+            'service_type' => 'Plumbing',
+            'subject' => 'Test service request',
+            'description' => 'Test description',
+            'priority' => 'medium',
+            'status' => 'request',
+        ], $overrides));
     }
 }

@@ -2,75 +2,138 @@
 
 namespace Tests\Feature\Crud;
 
+use App\Models\Role;
 use App\Models\Society;
+use App\Models\SocietyUser;
+use App\Scopes\SocietyScope;
 use Inertia\Testing\AssertableInertia as Assert;
 
+/**
+ * Member-facing society settings. A society's own Admin/Manager may view and
+ * update their own society only; creating, deleting or targeting other
+ * societies is a platform-level responsibility.
+ */
 class SocietiesCrudTest extends CrudTestCase
 {
-    public function test_index_renders_list()
+    public function test_index_renders_own_society_settings()
     {
         $this->get(route('societies.index'))
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->component('societies/index'));
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('societies/index')
+                ->where('society.id', $this->society->id));
     }
 
-    public function test_create_page_renders()
+    public function test_owner_role_is_blocked_from_society_settings()
     {
-        $this->get(route('societies.create'))->assertOk();
+        $owner = Role::withoutGlobalScope(SocietyScope::class)
+            ->where('society_id', $this->society->id)
+            ->where('display_name', 'Owner')
+            ->firstOrFail();
+
+        SocietyUser::where('user_id', $this->user->id)
+            ->where('society_id', $this->society->id)
+            ->update(['role_id' => $owner->id]);
+
+        $this->user->update(['role_id' => $owner->id]);
+        $this->app['session']->forget('context_user');
+
+        $this->get(route('societies.index'))->assertForbidden();
     }
 
-    public function test_store_validates_required_fields()
+    public function test_editing_another_society_is_forbidden()
     {
-        $this->post(route('societies.store'), [
+        $other = Society::create(['name' => 'Other Society', 'property_type' => 'residential']);
+
+        $this->get(route('societies.edit', $other))->assertForbidden();
+        $this->put(route('societies.update', $other), [
+            'name' => 'Hacked',
             'property_type' => 'residential',
-        ])->assertSessionHasErrors('name');
+        ])->assertForbidden();
     }
 
-    public function test_can_create_society()
+    public function test_admin_can_update_own_society()
     {
-        $this->post(route('societies.store'), [
-            'name' => 'Sunrise Apartments',
-            'email' => 'sunrise@example.com',
-            'phone_number' => '9876500000',
-            'timezone' => 'Asia/Kolkata',
-            'address' => 'Navi Mumbai',
-            'property_type' => 'mixed',
-            'is_active' => true,
-            'show_logo_text' => false,
-        ])->assertRedirect(route('societies.index'));
-
-        $this->assertDatabaseHas('societies', [
-            'name' => 'Sunrise Apartments',
-            'property_type' => 'mixed',
-            'is_active' => 1,
-        ]);
-    }
-
-    public function test_can_update_society()
-    {
-        $society = Society::create(['name' => 'Old Society', 'property_type' => 'residential']);
-
-        $this->put(route('societies.update', $society), [
-            'name' => 'New Society',
+        $this->put(route('societies.update', $this->society), [
+            'name' => 'Renamed Society',
             'property_type' => 'commercial',
-            'is_active' => false,
             'show_logo_text' => true,
         ])->assertRedirect(route('societies.index'));
 
         $this->assertDatabaseHas('societies', [
-            'id' => $society->id,
-            'name' => 'New Society',
+            'id' => $this->society->id,
+            'name' => 'Renamed Society',
             'property_type' => 'commercial',
         ]);
     }
 
-    public function test_can_delete_society()
+    public function test_members_cannot_create_societies()
     {
-        $society = Society::create(['name' => 'Disposable Society', 'property_type' => 'residential']);
+        $this->get('/societies/create')->assertStatus(405);
+        $this->post('/societies', [
+            'name' => 'Member Created Society',
+            'property_type' => 'residential',
+        ])->assertStatus(405);
+    }
 
-        $this->delete(route('societies.destroy', $society))
-            ->assertRedirect(route('societies.index'));
+    public function test_members_cannot_delete_societies()
+    {
+        $other = Society::create(['name' => 'To Delete', 'property_type' => 'residential']);
 
-        $this->assertDatabaseMissing('societies', ['id' => $society->id]);
+        $this->delete('/societies/'.$other->id)->assertStatus(405);
+
+        $this->assertDatabaseHas('societies', ['id' => $other->id]);
+    }
+
+    public function test_admin_can_update_society_white_label_branding()
+    {
+        $this->put(route('societies.update', $this->society), [
+            'name' => $this->society->name,
+            'property_type' => 'residential',
+            'theme_hex' => '#6d28d9',
+            'theme_rgb' => '109 40 217',
+            'show_logo_text' => true,
+        ])->assertRedirect(route('societies.index'));
+
+        $this->assertDatabaseHas('societies', [
+            'id' => $this->society->id,
+            'theme_hex' => '#6d28d9',
+            'theme_rgb' => '109 40 217',
+        ]);
+    }
+
+    public function test_invalid_brand_colour_is_rejected()
+    {
+        $this->put(route('societies.update', $this->society), [
+            'name' => $this->society->name,
+            'property_type' => 'residential',
+            'theme_hex' => 'not-a-colour',
+        ])->assertSessionHasErrors('theme_hex');
+    }
+
+    public function test_tenancy_share_exposes_white_label_branding()
+    {
+        $this->society->update([
+            'theme_hex' => '#2563eb',
+            'show_logo_text' => true,
+        ]);
+
+        $this->get(route('societies.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('societies/index')
+                ->where('auth.user.name', $this->user->name)
+                ->has('auth'));
+    }
+
+    public function test_society_logo_url_accessor()
+    {
+        $this->society->update(['logo' => 'society-logo.png']);
+
+        $this->get(route('societies.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('societies/index')
+                ->where('society.logo_url', Society::find($this->society->id)->logo_url));
     }
 }

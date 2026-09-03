@@ -29,9 +29,9 @@ class Ticket extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function ticketType()
+    public function ticketType(): BelongsTo
     {
-        return $this->belongsTo(TicketTypeSetting::class, "type_id");
+        return $this->belongsTo(TicketTypeSetting::class, 'type_id');
     }
 
     public function reply(): HasMany

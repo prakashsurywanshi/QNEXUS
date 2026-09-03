@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Scopes\SocietyScope;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -39,8 +40,8 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable,
-        HasApiTokens, HasRoles;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable,
+        PasskeyAuthenticatable, TwoFactorAuthenticatable;
 
     /**
      * Get the attributes that should be cast.
@@ -74,7 +75,7 @@ class User extends Authenticatable implements PasskeyUser
 
         if ($pivot && $pivot->role_id) {
             return Role::where('id', $pivot->role_id)
-                ->withoutGlobalScope(\App\Scopes\SocietyScope::class)
+                ->withoutGlobalScope(SocietyScope::class)
                 ->first();
         }
 
@@ -91,5 +92,13 @@ class User extends Authenticatable implements PasskeyUser
     public function societyUsers(): HasMany
     {
         return $this->hasMany(SocietyUser::class);
+    }
+
+    /**
+     * @return HasMany<NotificationPreference, $this>
+     */
+    public function notificationPreferences(): HasMany
+    {
+        return $this->hasMany(NotificationPreference::class);
     }
 }

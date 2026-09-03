@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
@@ -34,6 +35,21 @@ class Society extends Model
         'show_logo_text' => 'boolean',
     ];
 
+    protected $appends = ['logo_url'];
+
+    /**
+     * The resolved absolute URL for the society's branded logo, falling back
+     * to the platform logo when the society has not uploaded one.
+     *
+     * @return Attribute<string, never>
+     */
+    protected function logoUrl(): Attribute
+    {
+        return Attribute::get(fn (): string => $this->logo
+            ? asset_url_local_s3('logo/'.$this->logo)
+            : asset('img/logo.svg'));
+    }
+
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
@@ -52,6 +68,11 @@ class Society extends Model
     public function roles(): HasMany
     {
         return $this->hasMany(Role::class);
+    }
+
+    public function package(): BelongsTo
+    {
+        return $this->belongsTo(Package::class, 'package_id');
     }
 
     /**

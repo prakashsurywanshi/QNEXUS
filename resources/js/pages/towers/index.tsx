@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import EmptyState from '@/components/empty-state';
+import { Plus } from 'lucide-react';
 
 interface Tower {
     id: number;
@@ -14,9 +15,7 @@ export default function TowersIndex({ towers }: { towers: Tower[] }) {
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <h1 className="text-xl font-semibold">Towers</h1>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {towers.length === 0 && (
-                        <p className="text-muted-foreground">No towers in this society yet.</p>
-                    )}
+                    {towers.length === 0 && <EmptyState icon={Plus} title="No towers yet" description="Add your first tower to get started." />}
                     {towers.map((tower) => (
                         <div
                             key={tower.id}
@@ -29,9 +28,7 @@ export default function TowersIndex({ towers }: { towers: Tower[] }) {
                         </div>
                     ))}
                 </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[20vh] overflow-hidden rounded-xl border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+
             </div>
         </>
     );

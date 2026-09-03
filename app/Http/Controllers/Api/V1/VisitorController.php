@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\RoleAwareApiController;
 use App\Models\VisitorManagement;
+use App\Services\Notifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -41,24 +42,35 @@ class VisitorController extends RoleAwareApiController
             'address' => 'nullable|string|max:255',
         ]);
 
-        $visitor = new VisitorManagement();
-        $visitor->society_id = $society->id;
+        $visitor = new VisitorManagement;
+        $visitor->society_id = (int) $society->id;
         $visitor->visitor_name = $validated['visitor_name'];
         $visitor->phone_number = $validated['phone_number'] ?? null;
         $visitor->apartment_id = $validated['apartment_id'] ?? null;
         $visitor->date_of_visit = $validated['date_of_visit'] ?? now()->toDateString();
         $visitor->purpose_of_visit = $validated['purpose_of_visit'] ?? null;
         $visitor->address = $validated['address'] ?? null;
-        $visitor->user_id = $this->authUser()->id;
-        $visitor->added_by = $this->authUser()->id;
+        $visitor->user_id = (int) $this->authUser()->id;
+        $visitor->added_by = (int) $this->authUser()->id;
         $visitor->status = 'allowed';
         $visitor->in_time = now()->toTimeString();
         $visitor->save();
 
+        Notifier::notifyUsersWithPermission(
+            (string) $society->id,
+            'Show Visitors',
+            Notifier::CATEGORY_VISITORS,
+            [
+                'title' => 'Visitor checked in',
+                'body' => "{$visitor->visitor_name} has entered the society.",
+                'link' => '/visitors',
+            ]
+        );
+
         return $this->created($visitor, 'Visitor checked in');
     }
 
-    public function checkout(Request $request, $id): JsonResponse
+    public function checkout(Request $request, string $id): JsonResponse
     {
         $society = $this->requireSociety();
 
@@ -66,14 +78,25 @@ class VisitorController extends RoleAwareApiController
 
         $visitor = VisitorManagement::where('society_id', $society->id)->find($id);
 
-        if (!$visitor) {
+        if (! $visitor) {
             return $this->notFound('Visitor not found.');
         }
 
-        $visitor->status = 'exited';
+        $visitor->status = 'checked_out';
         $visitor->out_time = now()->toTimeString();
         $visitor->date_of_exit = now()->toDateString();
         $visitor->save();
+
+        Notifier::notifyUsersWithPermission(
+            (string) $society->id,
+            'Show Visitors',
+            Notifier::CATEGORY_VISITORS,
+            [
+                'title' => 'Visitor checked out',
+                'body' => "{$visitor->visitor_name} has left the society.",
+                'link' => '/visitors',
+            ]
+        );
 
         return $this->success($visitor, 'Visitor checked out');
     }

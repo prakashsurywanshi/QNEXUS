@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\DisableLandingSite;
+use App\Http\Middleware\EnsureActiveSociety;
+use App\Http\Middleware\EnsureModuleEnabled;
 use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -24,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             HandleAppearance::class,
             HandleInertiaRequests::class,
+            EnsureActiveSociety::class,
             SetActiveSociety::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
@@ -31,6 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'superadmin' => EnsureSuperAdmin::class,
             'disable.landing' => DisableLandingSite::class,
+            'module.enabled' => EnsureModuleEnabled::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

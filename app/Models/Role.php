@@ -17,6 +17,7 @@ class Role extends SpatieRole
         'display_name',
     ];
 
+    /** @return BelongsTo<Society, $this> */
     public function society(): BelongsTo
     {
         return $this->belongsTo(Society::class);

@@ -2,7 +2,7 @@ import { Link, useForm } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import EmptyState from '@/components/empty-state';
 import { create, destroy, edit } from '@/routes/members';
 
 interface Member {
@@ -33,9 +33,7 @@ export default function MembersIndex({ members }: { members: Member[] }) {
                     </Button>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {members.length === 0 && (
-                        <p className="text-muted-foreground">No members yet.</p>
-                    )}
+                    {members.length === 0 && <EmptyState icon={Plus} title="No members yet" description="Add your first member to get started." />}
                     {members.map((m) => (
                         <div key={m.id} className="border-sidebar-border/70 dark:border-sidebar-border rounded-xl border p-4">
                             <span className="font-medium">{m.name}</span>
@@ -53,9 +51,7 @@ export default function MembersIndex({ members }: { members: Member[] }) {
                         </div>
                     ))}
                 </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[20vh] overflow-hidden rounded-xl border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+
             </div>
         </>
     );

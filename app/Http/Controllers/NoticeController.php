@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Notice;
+use App\Services\Notifier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -29,7 +31,19 @@ class NoticeController extends Controller
             'description' => ['nullable', 'string'],
         ]);
 
-        Notice::create($data + ['society_id' => active_society_id()]);
+        $notice = Notice::create($data + ['society_id' => active_society_id()]);
+
+        Notifier::notifySociety(
+            (string) active_society_id(),
+            Notifier::CATEGORY_NOTICES,
+            [
+                'title' => 'New notice: '.$notice->title,
+                'body' => $notice->description !== null
+                    ? Str::limit($notice->description, 120)
+                    : null,
+                'link' => route('notices.index'),
+            ],
+        );
 
         return redirect()->route('notices.index');
     }

@@ -2,15 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\HasSociety;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ModuleSetting extends Model
 {
-    protected $guarded = ['id'];
+    use HasSociety;
 
-    public function society(): BelongsTo
-    {
-        return $this->belongsTo(Society::class);
-    }
+    protected $guarded = ['id'];
 }

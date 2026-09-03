@@ -31,7 +31,7 @@ class NoticeController extends RoleAwareApiController
             'description' => 'nullable|string',
         ]);
 
-        $notice = new Notice();
+        $notice = new Notice;
         $notice->society_id = $society->id;
         $notice->title = $validated['title'];
         $notice->description = $validated['description'] ?? null;

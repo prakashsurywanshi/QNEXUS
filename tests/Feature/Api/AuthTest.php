@@ -84,7 +84,7 @@ it('returns the authenticated profile with its permissions', function () {
 
     $response->assertOk()
         ->assertJsonPath('data.role.display_name', 'Guard')
-        ->assertJsonCount(5, 'data.permissions');
+        ->assertJsonCount(count(config('modules.role_permissions')['Guard']), 'data.permissions');
 });
 
 it('provisions exactly five roles per society', function () {

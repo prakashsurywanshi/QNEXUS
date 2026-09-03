@@ -33,6 +33,14 @@ class CmsContentSeeder extends Seeder
             'sort_order' => 3,
         ]);
 
+        $this->seedPage('security', 'Security & Access', [
+            'content' => "QNEXUS delivers secure, modern and contactless access for every resident, visitor and vehicle through its flagship QR-based access engine.\n\nResidents and staff can generate and share time-bound QR entry passes that gate and boom-barrier staff verify instantly at the point of entry. Visitors receive a secure digital QR invitation that is validated on arrival, eliminating paper passes and manual logbooks while keeping a full audit trail.\n\nVehicles enjoy the same contactless flow, and the same digital identity connects access control, patrol logs and emergency response across your property.",
+            'meta_title' => 'QR-Based Access & Security',
+            'meta_description' => 'Secure, contactless QR-based entry for residents, visitors and vehicles with QNEXUS.',
+            'status' => 'published',
+            'sort_order' => 4,
+        ]);
+
         $hero = CmsSection::firstOrCreate(
             ['slug' => 'hero'],
             [

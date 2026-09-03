@@ -1,4 +1,5 @@
 import { createInertiaApp } from '@inertiajs/react';
+import TopLoadingBar from '@/components/top-loading-bar';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { initializeTheme } from '@/hooks/use-appearance';
@@ -32,6 +33,7 @@ void createInertiaApp({
     withApp(app) {
         return (
             <TooltipProvider delayDuration={0}>
+                <TopLoadingBar />
                 {app}
                 <Toaster />
             </TooltipProvider>

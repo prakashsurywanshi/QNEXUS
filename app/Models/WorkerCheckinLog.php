@@ -40,7 +40,10 @@ class WorkerCheckinLog extends Model
 
     public function getDurationAttribute(): ?int
     {
-        if (!$this->check_out_time) return null;
+        if (! $this->check_out_time) {
+            return null;
+        }
+
         return $this->check_in_time->diffInMinutes($this->check_out_time);
     }
 }

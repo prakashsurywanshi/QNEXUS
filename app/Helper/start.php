@@ -1,8 +1,19 @@
 <?php
 
+use App\Helper\Files;
+use App\Models\GlobalSetting;
+use App\Models\Package;
+use App\Models\Role;
 use App\Models\Society;
+use App\Models\SocietyUser;
+use App\Models\StorageSetting;
+use App\Models\User;
+use App\Scopes\SocietyScope;
+use App\Support\GlobalSettingCache;
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\Cache;
 
-if (!function_exists('refresh_context_for_user')) {
+if (! function_exists('refresh_context_for_user')) {
 
     /**
      * Invalidate session-cached context whenever the authenticated user changes
@@ -27,12 +38,12 @@ if (!function_exists('refresh_context_for_user')) {
     }
 }
 
-if (!function_exists('user')) {
+if (! function_exists('user')) {
 
     /**
      * Return the current logged-in user (memorised for the request/session).
      *
-     * @return \App\Models\User|\Illuminate\Contracts\Auth\Authenticatable|null
+     * @return User|Authenticatable|null
      */
     function user()
     {
@@ -54,7 +65,7 @@ if (!function_exists('user')) {
     }
 }
 
-if (!function_exists('active_society_id')) {
+if (! function_exists('active_society_id')) {
 
     /**
      * The id of the society currently active for the logged-in user.
@@ -78,7 +89,7 @@ if (!function_exists('active_society_id')) {
     }
 }
 
-if (!function_exists('active_role_id')) {
+if (! function_exists('active_role_id')) {
 
     /**
      * The id of the role currently active for the user within the active society.
@@ -95,7 +106,7 @@ if (!function_exists('active_role_id')) {
         $societyId = active_society_id();
 
         if ($userId && $societyId) {
-            $pivot = \App\Models\SocietyUser::where('user_id', $userId)
+            $pivot = SocietyUser::where('user_id', $userId)
                 ->where('society_id', $societyId)
                 ->first();
 
@@ -117,12 +128,12 @@ if (!function_exists('active_role_id')) {
     }
 }
 
-if (!function_exists('society')) {
+if (! function_exists('society')) {
 
     /**
      * Return the society currently active for the logged-in user.
      *
-     * @return \App\Models\Society|false
+     * @return Society|false
      */
     function society()
     {
@@ -143,7 +154,7 @@ if (!function_exists('society')) {
     }
 }
 
-if (!function_exists('isRole')) {
+if (! function_exists('isRole')) {
 
     /**
      * Return the display name of the currently active role.
@@ -158,8 +169,8 @@ if (!function_exists('isRole')) {
 
         $roleId = active_role_id();
         $roleName = $roleId
-            ? \App\Models\Role::where('id', $roleId)
-                ->withoutGlobalScope(\App\Scopes\SocietyScope::class)
+            ? Role::where('id', $roleId)
+                ->withoutGlobalScope(SocietyScope::class)
                 ->value('display_name')
             : null;
 
@@ -173,7 +184,7 @@ if (!function_exists('isRole')) {
     }
 }
 
-if (!function_exists('role_permissions')) {
+if (! function_exists('role_permissions')) {
 
     /**
      * Array of permission names granted to the currently active role.
@@ -190,8 +201,8 @@ if (!function_exists('role_permissions')) {
 
         $roleId = active_role_id();
         $permissions = $roleId
-            ? \App\Models\Role::where('id', $roleId)
-                ->withoutGlobalScope(\App\Scopes\SocietyScope::class)
+            ? Role::where('id', $roleId)
+                ->withoutGlobalScope(SocietyScope::class)
                 ->first()?->permissions
                 ->pluck('name')
                 ->toArray()
@@ -205,7 +216,7 @@ if (!function_exists('role_permissions')) {
     }
 }
 
-if (!function_exists('user_can')) {
+if (! function_exists('user_can')) {
 
     /**
      * Whether the current user's active role holds the given permission.
@@ -216,7 +227,7 @@ if (!function_exists('user_can')) {
     }
 }
 
-if (!function_exists('timezone')) {
+if (! function_exists('timezone')) {
 
     function timezone()
     {
@@ -231,7 +242,7 @@ if (!function_exists('timezone')) {
     }
 }
 
-if (!function_exists('moduleAppliesToType')) {
+if (! function_exists('moduleAppliesToType')) {
 
     /**
      * Whether a module applies to a given society property type.
@@ -248,7 +259,60 @@ if (!function_exists('moduleAppliesToType')) {
     }
 }
 
-if (!function_exists('effective_property_type')) {
+if (! function_exists('enabled_module_names')) {
+
+    /**
+     * The set of module names the active society's package entitles (the
+     * purchased modules). Falls back to every configured module when the
+     * society has no package assigned (e.g. super-admin or pre-provisioning).
+     *
+     * @return array<string>
+     */
+    function enabled_module_names(): array
+    {
+        if (session()->has('enabled_module_names') && session('enabled_module_names')) {
+            return session('enabled_module_names');
+        }
+
+        $names = null;
+
+        $activeSociety = society();
+
+        if ($activeSociety && $activeSociety->package_id) {
+            $names = Package::whereKey($activeSociety->package_id)
+                ->with('modules')
+                ->first()
+                ?->modules
+                ?->pluck('name')
+                ?->values()
+                ?->map(fn ($name) => (string) $name)
+                ?->all();
+        }
+
+        if (! $names || count($names) === 0) {
+            $names = array_keys(config('modules.modules'));
+        }
+
+        $names = array_values(array_unique(array_map('strval', (array) $names)));
+
+        session(['enabled_module_names' => $names]);
+
+        return $names;
+    }
+}
+
+if (! function_exists('module_enabled')) {
+
+    /**
+     * Whether the active society's package entitles the given module.
+     */
+    function module_enabled(string $module): bool
+    {
+        return in_array($module, enabled_module_names(), true);
+    }
+}
+
+if (! function_exists('effective_property_type')) {
 
     /**
      * The resolved property type, honouring a per-session view-type override
@@ -266,7 +330,7 @@ if (!function_exists('effective_property_type')) {
     }
 }
 
-if (!function_exists('society_is_type')) {
+if (! function_exists('society_is_type')) {
 
     /**
      * Whether the active society matches one of the given property types.
@@ -275,7 +339,7 @@ if (!function_exists('society_is_type')) {
     {
         $society = society();
 
-        if (!$society) {
+        if (! $society) {
             return false;
         }
 
@@ -283,20 +347,20 @@ if (!function_exists('society_is_type')) {
     }
 }
 
-if (!function_exists('global_setting')) {
+if (! function_exists('global_setting')) {
 
     /**
      * The platform-wide GlobalSetting singleton (branding, SEO, landing site
      * toggle, social links, locale/timezone). Memorised per request.
      *
-     * @return \App\Models\GlobalSetting|null
+     * @return GlobalSetting|null
      */
     function global_setting()
     {
-        return \App\Support\GlobalSettingCache::get();
+        return GlobalSettingCache::get();
     }
 
-    if (!function_exists('forget_global_settings_cache')) {
+    if (! function_exists('forget_global_settings_cache')) {
 
         /**
          * Invalidate the cached global settings so the next call re-queries the
@@ -304,12 +368,12 @@ if (!function_exists('global_setting')) {
          */
         function forget_global_settings_cache(): void
         {
-            \App\Support\GlobalSettingCache::forget();
+            GlobalSettingCache::forget();
         }
     }
 }
 
-if (!function_exists('is_superadmin')) {
+if (! function_exists('is_superadmin')) {
 
     /**
      * Whether the current user is a platform-level superadmin, i.e. a user
@@ -323,7 +387,7 @@ if (!function_exists('is_superadmin')) {
     }
 }
 
-if (!function_exists('asset_url_local_s3')) {
+if (! function_exists('asset_url_local_s3')) {
 
     /**
      * Build a URL for a stored asset. Supports S3-compatible disks when the
@@ -331,24 +395,24 @@ if (!function_exists('asset_url_local_s3')) {
      */
     function asset_url_local_s3($path)
     {
-        $StorageSetting = class_exists(\App\Models\StorageSetting::class)
-            ? new \App\Models\StorageSetting()
+        $StorageSetting = class_exists(StorageSetting::class)
+            ? new StorageSetting
             : null;
 
         if (in_array(config('filesystems.default'), $StorageSetting ? $StorageSetting::S3_COMPATIBLE_STORAGE : [])) {
-            if (\Illuminate\Support\Facades\Cache::has(config('filesystems.default') . '-' . $path)) {
-                return \Illuminate\Support\Facades\Cache::get(config('filesystems.default') . '-' . $path);
+            if (Cache::has(config('filesystems.default').'-'.$path)) {
+                return Cache::get(config('filesystems.default').'-'.$path);
             }
 
             $temporaryUrl = Storage::disk(config('filesystems.default'))->temporaryUrl($path, now()->addMinutes($StorageSetting::HASH_TEMP_FILE_TIME));
-            \Illuminate\Support\Facades\Cache::put(config('filesystems.default') . '-' . $path, $temporaryUrl, $StorageSetting::HASH_TEMP_FILE_TIME * 60);
+            Cache::put(config('filesystems.default').'-'.$path, $temporaryUrl, $StorageSetting::HASH_TEMP_FILE_TIME * 60);
 
             return $temporaryUrl;
         }
 
-        $storageUrl = \App\Helper\Files::UPLOAD_FOLDER . '/' . $path;
+        $storageUrl = Files::UPLOAD_FOLDER.'/'.$path;
 
-        if (!Str::startsWith($storageUrl, 'http')) {
+        if (! Str::startsWith($storageUrl, 'http')) {
             return url($storageUrl);
         }
 

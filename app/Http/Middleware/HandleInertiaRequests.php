@@ -44,6 +44,25 @@ class HandleInertiaRequests extends Middleware
             'isSuperadmin' => fn () => $request->user() !== null && is_null($request->user()->society_id),
             'globalSettings' => fn () => \global_setting(),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'impersonate' => fn () => [
+                'active' => $request->session()->has('impersonate_user_id'),
+                'society_id' => $request->session()->get('impersonate_society_id'),
+                'stop_url' => route('superadmin.stop-impersonate'),
+            ],
+            'notifications' => fn () => $request->user()
+                ? [
+                    'unread_count' => $request->user()->unreadNotifications()->count(),
+                    'items' => $request->user()->notifications()->latest()->limit(8)->get()
+                        ->map(fn ($n) => [
+                            'id' => $n->id,
+                            'title' => $n->data['title'] ?? 'Notification',
+                            'body' => $n->data['body'] ?? null,
+                            'link' => $n->data['link'] ?? null,
+                            'read_at' => $n->read_at,
+                            'created_at' => $n->created_at,
+                        ]),
+                ]
+                : ['unread_count' => 0, 'items' => []],
         ];
     }
 }

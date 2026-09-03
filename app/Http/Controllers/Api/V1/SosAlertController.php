@@ -18,7 +18,7 @@ class SosAlertController extends RoleAwareApiController
             'location' => 'nullable|string|max:255',
         ]);
 
-        $alert = new SosAlert();
+        $alert = new SosAlert;
         $alert->society_id = $society->id;
         $alert->user_id = $this->authUser()->id;
         $alert->message = $validated['message'] ?? 'SOS Alert';

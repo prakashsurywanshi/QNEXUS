@@ -2,7 +2,7 @@ import { Link, useForm } from '@inertiajs/react';
 import { Head } from '@inertiajs/react';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import EmptyState from '@/components/empty-state';
 import { create, destroy, edit } from '@/routes/polls';
 
 interface Poll {
@@ -37,9 +37,7 @@ export default function PollsIndex({ polls }: { polls: Poll[] }) {
                     </Button>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {polls.length === 0 && (
-                        <p className="text-muted-foreground">No polls yet.</p>
-                    )}
+                    {polls.length === 0 && <EmptyState icon={Plus} title="No polls yet" description="Create your first poll to get started." />}
                     {polls.map((p) => (
                         <div key={p.id} className="border-sidebar-border/70 dark:border-sidebar-border rounded-xl border p-4">
                             <div className="flex items-center justify-between">
@@ -61,9 +59,7 @@ export default function PollsIndex({ polls }: { polls: Poll[] }) {
                         </div>
                     ))}
                 </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[20vh] overflow-hidden rounded-xl border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+
             </div>
         </>
     );

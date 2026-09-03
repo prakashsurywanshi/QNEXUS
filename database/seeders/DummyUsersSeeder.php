@@ -53,6 +53,11 @@ class DummyUsersSeeder extends Seeder
         $users = $this->seedSocietyUsers($residential, '');
         $users = array_merge($users, $this->seedSocietyUsers($commercial, 'cm-'));
 
+        // Seed comprehensive society data (towers, apartments, amenities, tickets, etc.).
+        $societyDataSeeder = new SocietyDataSeeder;
+        $societyDataSeeder->run($residential);
+        $societyDataSeeder->run($commercial);
+
         $this->printCredentials($users);
     }
 
