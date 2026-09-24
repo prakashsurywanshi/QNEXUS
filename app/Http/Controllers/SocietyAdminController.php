@@ -60,7 +60,7 @@ class SocietyAdminController extends Controller
     private function storeLogo(Request $request, Society $society): string
     {
         if ($society->logo) {
-            Storage::disk('public')->delete('logo/'.$society->logo);
+            Storage::disk('public')->delete($society->logo);
         }
 
         $path = $request->file('logo')->store('logo', 'public');

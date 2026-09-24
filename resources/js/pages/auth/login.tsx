@@ -11,13 +11,31 @@ import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 import PasskeyVerify from '@/components/passkey-verify';
+import { useRef } from 'react';
+
+type DemoUser = {
+    name: string;
+    email: string;
+    role: string;
+    society: string;
+};
 
 type Props = {
     status?: string;
     canResetPassword: boolean;
+    demoUsers: DemoUser[];
+    demoPassword: string;
 };
 
-export default function Login({ status, canResetPassword }: Props) {
+export default function Login({
+    status,
+    canResetPassword,
+    demoUsers,
+    demoPassword,
+}: Props) {
+    const emailRef = useRef<HTMLInputElement>(null);
+    const passwordRef = useRef<HTMLInputElement>(null);
+
     return (
         <>
             <Head title="Log in" />
@@ -29,7 +47,7 @@ export default function Login({ status, canResetPassword }: Props) {
                 resetOnSuccess={['password']}
                 className="flex flex-col gap-6"
             >
-                {({ processing, errors }) => (
+                {({ processing, errors, submit, clearErrors }) => (
                     <>
                         <div className="grid gap-6">
                             <div className="grid gap-2">
@@ -43,6 +61,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                     tabIndex={1}
                                     autoComplete="email"
                                     placeholder="email@example.com"
+                                    ref={emailRef}
                                 />
                                 <InputError message={errors.email} />
                             </div>
@@ -67,6 +86,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                     tabIndex={2}
                                     autoComplete="current-password"
                                     placeholder="Password"
+                                    ref={passwordRef}
                                 />
                                 <InputError message={errors.password} />
                             </div>
@@ -98,6 +118,61 @@ export default function Login({ status, canResetPassword }: Props) {
                                 Sign up
                             </TextLink>
                         </div>
+
+                        {demoUsers.length > 0 && (
+                            <div className="grid gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-border h-px flex-1" />
+                                    <span className="text-muted-foreground text-xs font-medium uppercase">
+                                        Demo accounts
+                                    </span>
+                                    <div className="bg-border h-px flex-1" />
+                                </div>
+
+                                <p className="text-muted-foreground text-center text-xs">
+                                    Click a demo account to log in instantly
+                                </p>
+
+                                <div className="max-h-64 overflow-y-auto rounded-md border">
+                                    {demoUsers.map((user) => (
+                                        <button
+                                            key={user.email}
+                                            type="button"
+                                            onClick={() => {
+                                                if (emailRef.current) {
+                                                    emailRef.current.value =
+                                                        user.email;
+                                                }
+                                                if (passwordRef.current) {
+                                                    passwordRef.current.value =
+                                                        demoPassword;
+                                                }
+                                                clearErrors();
+                                                submit();
+                                            }}
+                                            className="hover:bg-muted/50 flex w-full items-center justify-between gap-2 border-b bg-transparent px-3 py-2 text-left text-sm last:border-b-0"
+                                        >
+                                            <span className="min-w-0">
+                                                <span className="block truncate font-medium">
+                                                    {user.name}
+                                                </span>
+                                                <span className="text-muted-foreground block truncate text-xs">
+                                                    {user.email}
+                                                </span>
+                                            </span>
+                                            <span className="flex shrink-0 flex-col items-end gap-0.5">
+                                                <span className="bg-secondary rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase">
+                                                    {user.role}
+                                                </span>
+                                                <span className="text-muted-foreground text-[10px]">
+                                                    {user.society}
+                                                </span>
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </>
                 )}
             </Form>

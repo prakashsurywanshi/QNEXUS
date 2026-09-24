@@ -5,6 +5,10 @@ namespace App\Providers;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Http\Responses\LoginResponse;
+use App\Models\Role;
+use App\Models\User;
+use App\Scopes\SocietyScope;
+use Database\Seeders\DummyUsersSeeder;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -18,6 +22,48 @@ use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
 {
+    /**
+     * Resolve the demo accounts seeded by DummyUsersSeeder into display rows
+     * for the login screen.
+     *
+     * @param  list<array{email: string}>  $accounts
+     * @return list<array{name: string, email: string, role: string, society: string}>
+     */
+    private function demoUsers(array $accounts): array
+    {
+        $emails = array_column($accounts, 'email');
+
+        return User::query()
+            ->with('society')
+            ->whereIn('email', $emails)
+            ->get()
+            ->map(fn (User $user) => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $this->roleLabel($user),
+                'society' => $user->society?->name ?? 'Platform',
+            ])
+            ->sortBy([
+                fn (array $a, array $b) => $a['society'] <=> $b['society'],
+                fn (array $a, array $b) => $a['role'] <=> $b['role'],
+            ])
+            ->values()
+            ->all();
+    }
+
+    private function roleLabel(User $user): string
+    {
+        if ($user->email === 'superadmin@qnexus.test') {
+            return 'Super Admin';
+        }
+
+        $role = $user->role_id !== null
+            ? Role::withoutGlobalScope(SocietyScope::class)->find($user->role_id)
+            : null;
+
+        return $role?->display_name ?? 'Member';
+    }
+
     /**
      * Register any application services.
      */
@@ -55,6 +101,8 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::loginView(fn (Request $request) => Inertia::render('auth/login', [
             'canResetPassword' => Features::enabled(Features::resetPasswords()),
             'status' => $request->session()->get('status'),
+            'demoPassword' => DummyUsersSeeder::PASSWORD,
+            'demoUsers' => $this->demoUsers(DummyUsersSeeder::demoAccounts()),
         ]));
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/reset-password', [

@@ -2,10 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Actions\ProvisionSociety;
 use App\Models\Role;
 use App\Models\Society;
 use App\Models\SocietyUser;
 use App\Models\User;
+use App\Observers\SocietyObserver;
 use App\Scopes\SocietyScope;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
@@ -32,9 +34,33 @@ use Illuminate\Support\Facades\Hash;
  */
 class DummyUsersSeeder extends Seeder
 {
-    private const PASSWORD = 'password';
+    public const PASSWORD = 'password';
 
     private const SUPERADMIN_EMAIL = 'superadmin@qnexus.test';
+
+    /** Prefixes used when seeding each demo society's users. */
+    private const SOCIETY_PREFIXES = ['', 'cm-'];
+
+    /**
+     * One demo account per role for each seeded society, plus the platform
+     * superadmin. This is the source of truth used by the login screen's
+     * demo fast-login list.
+     *
+     * @return list<array{email: string}>
+     */
+    public static function demoAccounts(): array
+    {
+        $accounts = [['email' => self::SUPERADMIN_EMAIL]];
+
+        foreach (self::SOCIETY_PREFIXES as $prefix) {
+            foreach (config('modules.role_types') as $displayName) {
+                $slug = strtolower($displayName);
+                $accounts[] = ['email' => $prefix.$slug.'@demo.test'];
+            }
+        }
+
+        return $accounts;
+    }
 
     public function run(): void
     {
@@ -50,6 +76,9 @@ class DummyUsersSeeder extends Seeder
             ['property_type' => 'commercial', 'is_active' => true],
         );
 
+        $this->ensureProvisioned($residential);
+        $this->ensureProvisioned($commercial);
+
         $users = $this->seedSocietyUsers($residential, '');
         $users = array_merge($users, $this->seedSocietyUsers($commercial, 'cm-'));
 
@@ -59,6 +88,24 @@ class DummyUsersSeeder extends Seeder
         $societyDataSeeder->run($commercial);
 
         $this->printCredentials($users);
+    }
+
+    /**
+     * Provision roles, module settings and a subscription for a society.
+     *
+     * Normally the SocietyObserver provisions these on creation, but
+     * DatabaseSeeder disables model events (WithoutModelEvents), so we must
+     * provision explicitly for newly created / previously unprovisioned
+     * societies. Idempotent: no-op once the society already has roles.
+     */
+    private function ensureProvisioned(Society $society): void
+    {
+        if (Role::withoutGlobalScopes()->where('society_id', $society->id)->exists()) {
+            return;
+        }
+
+        (new SocietyObserver)->syncSocietyModuleSettings($society);
+        (new ProvisionSociety)($society);
     }
 
     /**

@@ -66,7 +66,7 @@ class GlobalSetting extends Model
 
     public function logoUrl(): Attribute
     {
-        return Attribute::get(fn(): string => $this->logo ? asset_url_local_s3('logo/' . $this->logo) : asset('img/logo.svg'));
+        return Attribute::get(fn(): string => $this->logo ? asset_url_local_s3($this->logo) : asset('img/logo.svg'));
     }
 
     public function defaultCurrency(): BelongsTo

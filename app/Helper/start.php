@@ -410,6 +410,14 @@ if (! function_exists('asset_url_local_s3')) {
             return $temporaryUrl;
         }
 
+        $path = ltrim((string) $path, '/');
+
+        // Files stored on the local public disk (storage/app/public) are
+        // served through the /storage symlink.
+        if (Storage::disk('public')->exists($path)) {
+            return Storage::disk('public')->url($path);
+        }
+
         $storageUrl = Files::UPLOAD_FOLDER.'/'.$path;
 
         if (! Str::startsWith($storageUrl, 'http')) {
